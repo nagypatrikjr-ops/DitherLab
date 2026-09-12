@@ -1,0 +1,104 @@
+{
+  "name": "ditherlab",
+  "productName": "DitherLab",
+  "version": "1.1.0",
+  "description": "Dithering, halftones and print-ready T-shirt files (DTF, screen print). Runs entirely on your computer.",
+  "author": {
+    "name": "DitherLab"
+  },
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "vitest run tests/bench --dir tests/bench --testTimeout=900000",
+    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "app": "vite build && npm run build:electron && electron .",
+    "app:dist": "vite build && npm run build:electron && electron-builder --mac --win",
+    "app:dist:mac": "vite build && npm run build:electron && electron-builder --mac",
+    "app:dist:win": "vite build && npm run build:electron && electron-builder --win",
+    "icon": "vite-node scripts/make-icon.ts"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "@types/node": "^26.5.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8",
+    "zustand": "^4.5.5"
+  },
+  "build": {
+    "appId": "app.ditherlab.desktop",
+    "productName": "DitherLab",
+    "copyright": "DitherLab",
+    "directories": {
+      "output": "release/${version}",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "afterSign": "build/adhoc-sign.cjs",
+    "mac": {
+      "category": "public.app-category.graphics-design",
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "dmg", "arch": ["universal"] },
+        { "target": "zip", "arch": ["universal"] }
+      ],
+      "artifactName": "DitherLab-${version}-mac.${ext}",
+      "extendInfo": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "Image",
+            "CFBundleTypeRole": "Viewer",
+            "LSHandlerRank": "Alternate",
+            "LSItemContentTypes": [
+              "public.png",
+              "public.jpeg",
+              "org.webmproject.webp",
+              "com.compuserve.gif",
+              "com.microsoft.bmp",
+              "public.avif"
+            ]
+          }
+        ]
+      }
+    },
+    "dmg": {
+      "title": "DitherLab ${version}"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "zip", "arch": ["x64"] }
+      ],
+      "artifactName": "DitherLab-${version}-Windows-portable.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DitherLab",
+      "artifactName": "DitherLab-${version}-Windows-Setup.${ext}"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+node_modules
+dist
+*.local
+.DS_Store
+tests/golden/output
+dist-electron
+release
+tsconfig.tsbuildinfo

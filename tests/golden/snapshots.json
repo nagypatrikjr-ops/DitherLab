@@ -1,0 +1,297 @@
+{
+  "ed:floyd-steinberg": {
+    "hash": "1ace1b65",
+    "mean": 122.15,
+    "tones": 16
+  },
+  "ed:false-floyd-steinberg": {
+    "hash": "9df30a0e",
+    "mean": 121.35,
+    "tones": 16
+  },
+  "ed:jarvis": {
+    "hash": "e1b96d8e",
+    "mean": 123.54,
+    "tones": 16
+  },
+  "ed:stucki": {
+    "hash": "3f0bccef",
+    "mean": 123.27,
+    "tones": 16
+  },
+  "ed:atkinson": {
+    "hash": "c6156295",
+    "mean": 125.91,
+    "tones": 16
+  },
+  "ed:burkes": {
+    "hash": "8b97385a",
+    "mean": 122.46,
+    "tones": 16
+  },
+  "ed:sierra3": {
+    "hash": "644848bc",
+    "mean": 123.31,
+    "tones": 16
+  },
+  "ed:sierra2": {
+    "hash": "7f018e80",
+    "mean": 123.56,
+    "tones": 16
+  },
+  "ed:sierra-lite": {
+    "hash": "c559b18e",
+    "mean": 122.26,
+    "tones": 16
+  },
+  "ed:fan": {
+    "hash": "f033de42",
+    "mean": 122.16,
+    "tones": 16
+  },
+  "ed:shiau-fan-1": {
+    "hash": "a11e083e",
+    "mean": 122.38,
+    "tones": 16
+  },
+  "ed:shiau-fan-2": {
+    "hash": "410321ea",
+    "mean": 122.2,
+    "tones": 16
+  },
+  "ed:custom": {
+    "hash": "1ace1b65",
+    "mean": 122.15,
+    "tones": 16
+  },
+  "ed:riemersma": {
+    "hash": "d1937de5",
+    "mean": 123.97,
+    "tones": 16
+  },
+  "ord:bayer2": {
+    "hash": "c1d88d96",
+    "mean": 124.65,
+    "tones": 16
+  },
+  "ord:bayer4": {
+    "hash": "764dafe2",
+    "mean": 124.4,
+    "tones": 16
+  },
+  "ord:bayer8": {
+    "hash": "a76c8740",
+    "mean": 124.54,
+    "tones": 16
+  },
+  "ord:bayer16": {
+    "hash": "e7ccdc4a",
+    "mean": 124.55,
+    "tones": 16
+  },
+  "ord:bayer32": {
+    "hash": "52076056",
+    "mean": 124.6,
+    "tones": 16
+  },
+  "ord:checker": {
+    "hash": "24fc78e7",
+    "mean": 124.62,
+    "tones": 16
+  },
+  "ord:clustered4": {
+    "hash": "4682f973",
+    "mean": 123.78,
+    "tones": 16
+  },
+  "ord:clustered6": {
+    "hash": "43cdb476",
+    "mean": 123.84,
+    "tones": 16
+  },
+  "ord:clustered8": {
+    "hash": "2f63d42f",
+    "mean": 124.64,
+    "tones": 16
+  },
+  "ord:spiral8": {
+    "hash": "b4eba516",
+    "mean": 124.7,
+    "tones": 16
+  },
+  "ord:magic5": {
+    "hash": "0a167ab5",
+    "mean": 123.73,
+    "tones": 16
+  },
+  "ord:magic7": {
+    "hash": "bf917008",
+    "mean": 123.87,
+    "tones": 16
+  },
+  "ord:line-horizontal8": {
+    "hash": "36bb8edd",
+    "mean": 125.03,
+    "tones": 16
+  },
+  "ord:line-vertical8": {
+    "hash": "e7ef921f",
+    "mean": 124.78,
+    "tones": 16
+  },
+  "ord:line-diagonal8": {
+    "hash": "af8bf23c",
+    "mean": 124.63,
+    "tones": 16
+  },
+  "ord:line-antiDiagonal8": {
+    "hash": "6e92d03f",
+    "mean": 124.62,
+    "tones": 16
+  },
+  "ord:cross-hatch8": {
+    "hash": "be9f9fbd",
+    "mean": 109.16,
+    "tones": 16
+  },
+  "ord:weave8": {
+    "hash": "94583bd4",
+    "mean": 124.93,
+    "tones": 16
+  },
+  "ord:blue-noise": {
+    "hash": "e17437cf",
+    "mean": 124.27,
+    "tones": 16
+  },
+  "ord:void-cluster-32": {
+    "hash": "d3338cf7",
+    "mean": 124.32,
+    "tones": 16
+  },
+  "ord:white-noise": {
+    "hash": "69a58616",
+    "mean": 123.31,
+    "tones": 16
+  },
+  "ord:ign": {
+    "hash": "c9ee2fdc",
+    "mean": 123.74,
+    "tones": 16
+  },
+  "ord:custom-matrix": {
+    "hash": "764dafe2",
+    "mean": 124.4,
+    "tones": 16
+  },
+  "ht:halftone": {
+    "hash": "be071406",
+    "mean": 119.18,
+    "tones": 14
+  },
+  "mod:threshold": {
+    "hash": "45646a4b",
+    "mean": 124.24,
+    "tones": 16
+  },
+  "mod:ascii": {
+    "hash": "016a3b95",
+    "mean": 140.55,
+    "tones": 2
+  },
+  "mod:shape": {
+    "hash": "73df0e28",
+    "mean": 99.13,
+    "tones": 2
+  },
+  "mod:quadtree": {
+    "hash": "74bad9b0",
+    "mean": 120.41,
+    "tones": 15
+  },
+  "mod:contour": {
+    "hash": "36dbe9d6",
+    "mean": 168.99,
+    "tones": 64
+  },
+  "mod:edge-aware": {
+    "hash": "f0e00ef3",
+    "mean": 116.41,
+    "tones": 16
+  },
+  "fx:adjust": {
+    "hash": "9fcf4559",
+    "mean": 121.85,
+    "tones": 64
+  },
+  "fx:levels": {
+    "hash": "9fcf4559",
+    "mean": 121.85,
+    "tones": 64
+  },
+  "fx:posterize": {
+    "hash": "912cc8d9",
+    "mean": 121.32,
+    "tones": 64
+  },
+  "fx:invert": {
+    "hash": "43386555",
+    "mean": 133.15,
+    "tones": 64
+  },
+  "fx:threshold": {
+    "hash": "1174f43d",
+    "mean": 120.36,
+    "tones": 2
+  },
+  "fx:grayscale": {
+    "hash": "3839fd02",
+    "mean": 122.97,
+    "tones": 64
+  },
+  "fx:blur": {
+    "hash": "6767da19",
+    "mean": 121.8,
+    "tones": 64
+  },
+  "fx:sharpen": {
+    "hash": "208b696c",
+    "mean": 121.7,
+    "tones": 64
+  },
+  "fx:glow": {
+    "hash": "64a27987",
+    "mean": 156.5,
+    "tones": 64
+  },
+  "fx:chromatic": {
+    "hash": "057e72cf",
+    "mean": 121.32,
+    "tones": 64
+  },
+  "fx:jpeg": {
+    "hash": "a9b67afb",
+    "mean": 121.82,
+    "tones": 64
+  },
+  "fx:pixel-sort": {
+    "hash": "650e7389",
+    "mean": 121.85,
+    "tones": 64
+  },
+  "fx:displace": {
+    "hash": "0a0ef50e",
+    "mean": 122.89,
+    "tones": 64
+  },
+  "fx:crt": {
+    "hash": "77ba81d5",
+    "mean": 78.88,
+    "tones": 64
+  },
+  "fx:noise": {
+    "hash": "4cb8e862",
+    "mean": 121.84,
+    "tones": 64
+  }
+}
