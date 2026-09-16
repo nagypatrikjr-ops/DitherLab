@@ -76,13 +76,40 @@ jobs:
       - name: End to end — pass 1
         run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 1 --heavy
 
+      - name: Report of pass 1
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-1-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/e2e/report-pass1-*.json
+          if-no-files-found: warn
+
       - name: End to end — pass 2
         if: always()
         run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 2 --heavy
 
+      - name: Report of pass 2
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-2-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/e2e/report-pass2-*.json
+          if-no-files-found: warn
+
       - name: End to end — pass 3
         if: always()
         run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 3 --heavy
+
+      - name: Report of pass 3
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-3-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/e2e/report-pass3-*.json
+          if-no-files-found: warn
 
       - name: Uninstall (silent)
         if: runner.os == 'Windows'
@@ -95,14 +122,6 @@ jobs:
           Start-Sleep -Seconds 5
           if (Test-Path "${{ env.APP_EXE }}") { throw 'the uninstaller left DitherLab.exe behind' }
           Write-Host 'uninstalled cleanly'
-
-      - name: Keep the reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-reports-${{ matrix.os }}
-          path: ${{ runner.temp }}/e2e/report-*.json
-          if-no-files-found: warn
 
       - name: Keep the installers
         if: always()
