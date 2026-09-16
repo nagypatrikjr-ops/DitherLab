@@ -317,6 +317,12 @@ function createWindow(): void {
       nodeIntegration: false,
       webSecurity: true,
       spellcheck: false,
+      // Chromium slows the timers of a window that is covered or in the
+      // background — after five minutes to one wake-up a minute. A long export
+      // runs exactly while the user is doing something else, and its follow-up
+      // steps are timers: a 600 DPI print could sit for minutes after it had
+      // finished computing, with the controls ignoring input meanwhile.
+      backgroundThrottling: false,
       additionalArguments: [`--ditherlab-version=${app.getVersion()}`],
     },
   });

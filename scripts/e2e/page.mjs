@@ -63,9 +63,12 @@ export const PAGE_HELPERS = String.raw`
 
   function field(labelSource, within) {
     const re = rx(labelSource);
+    // The label row also holds the unit ("mm", "×"), so match the name alone.
     const f = all('.field', scope(within)).find((x) => {
       const l = x.querySelector(':scope > .label');
-      return l && re.test(text(l));
+      if (!l) return false;
+      const name = l.querySelector(':scope > span:first-child');
+      return re.test(text(name || l));
     });
     if (!f) throw new Error('field not found: /' + labelSource + '/');
     return f;

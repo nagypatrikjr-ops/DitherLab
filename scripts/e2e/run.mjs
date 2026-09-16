@@ -124,7 +124,7 @@ async function sweep(app, within, idle, skip = /^$/, group, prefix) {
     const label = `^${esc(s.label)}$`;
     let original;
     await check(group, `${prefix} › “${s.label}”: every option (${s.options.length})`, async () => {
-      original = (await app.ev(`document.querySelector(${JSON.stringify(within)}) && [...document.querySelector(${JSON.stringify(within)}).querySelectorAll('.field')].find(f => f.querySelector(':scope > .label')?.textContent.replace(/\\s+/g,' ').trim() === ${JSON.stringify(s.label)})?.querySelector('select')?.value`)) ?? s.options[0];
+      original = (await app.ev(`[...document.querySelector(${JSON.stringify(within)}).querySelectorAll('.field')].find(f => (f.querySelector(':scope > .label > span:first-child')?.textContent ?? '').replace(/\\s+/g,' ').trim() === ${JSON.stringify(s.label)})?.querySelector('select')?.value`)) ?? s.options[0];
       for (const o of s.options) {
         await app.call('choose', label, o, within);
         await idle(app);
