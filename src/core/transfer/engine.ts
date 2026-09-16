@@ -8,6 +8,7 @@ import { hashNoise2D } from '../rng';
 import { StreamResampler } from './resample';
 import { analyzeComponents, fillSmallHoles, removeSmallInk } from './components';
 import { erodeDisk } from './morph';
+import { buildSpotPalette, spotLookup } from './spot';
 import {
   ALPHA_FLOOR,
   MAX_PRINT_MM,
@@ -538,6 +539,8 @@ export function renderTransfer(
     srgbToLinear(s.garment.b),
   ];
   const invDensity = 1 / Math.min(4, Math.max(0.25, s.knockout.density));
+  // Null unless the user restricted the ink colours; see core/transfer/spot.
+  const spot = buildSpotPalette(s.spot);
 
   const prepared = opts.prepared ?? prepareSource(src, s);
   const { five, sat } = coveragePrepass(prepared, src.width, src.height, T, s, invDensity);
@@ -562,6 +565,8 @@ export function renderTransfer(
   const amap = new Uint8Array(count);
   const cmap = new Uint8Array(count * 3);
   const solid = new Uint8Array(count);
+  /** 1 where the spot filter forbids ink. Empty unless the filter is on. */
+  const dropped = spot !== null && spot.other === 'remove' ? new Uint8Array(count) : null;
 
   // ---- Pass 1: coverage and ink colour per pixel -------------------------
   /** 0 = screened normally, 1 = hard edge without ink, 2 = hard edge with ink. */
@@ -617,12 +622,40 @@ export function renderTransfer(
         }
       }
 
+      let rb = encodeByte(cr);
+      let gb = encodeByte(cg);
+      let bb = encodeByte(cb);
+      let forbidden = false;
+      if (spot !== null) {
+        // Coverage is settled above and is deliberately left alone here, so
+        // the dots that carry the shading come out exactly as they would
+        // without the filter. Only the ink a pixel prints with changes — or,
+        // for a colour no ink claims, whether it is printed at all.
+        const hit = spotLookup(spot, rb, gb, bb);
+        let k = hit >= 0 ? hit : -1 - hit;
+        if (hit < 0 && spot.other === 'remove') {
+          forbidden = true;
+          k = -1;
+        } else if (hit < 0 && spot.other === 'color') {
+          rb = spot.otherByte[0];
+          gb = spot.otherByte[1];
+          bb = spot.otherByte[2];
+          k = -1;
+        }
+        if (k >= 0) {
+          rb = spot.byte[k * 3];
+          gb = spot.byte[k * 3 + 1];
+          bb = spot.byte[k * 3 + 2];
+        }
+      }
+
       const ab = Math.round((alpha < 0 ? 0 : alpha > 1 ? 1 : alpha) * 255);
       amap[p] = ab;
-      solid[p] = alpha >= SOLID_ALPHA || edge[p] === 2 ? 1 : 0;
-      cmap[p * 3] = encodeByte(cr);
-      cmap[p * 3 + 1] = encodeByte(cg);
-      cmap[p * 3 + 2] = encodeByte(cb);
+      solid[p] = !forbidden && (alpha >= SOLID_ALPHA || edge[p] === 2) ? 1 : 0;
+      if (forbidden && dropped !== null) dropped[p] = 1;
+      cmap[p * 3] = rb;
+      cmap[p * 3 + 1] = gb;
+      cmap[p * 3 + 2] = bb;
     }
   }
 
@@ -673,6 +706,11 @@ export function renderTransfer(
     let hv = 0;
     for (let x = 0; x < ww; x++) {
       const p = y * ww + x;
+      // Screening reads the tone of the neighbourhood, not the pixel's own
+      // coverage, so a colour the filter forbids has to be kept out here —
+      // zeroing its coverage alone would still let the surrounding tone
+      // print it, and would shift the dots around it into the bargain.
+      if (dropped !== null && dropped[p] === 1) continue;
       const e = edge[p];
       if (e === 2) {
         ink[p] = 1;

@@ -8,7 +8,7 @@ a fájlok nem hagyják el a gépet — nincs backend.
 npm install
 npm run dev      # fejlesztői szerver
 npm run build    # produkciós build (tsc -b && vite build)
-npm test         # 205 teszt: unit + golden
+npm test         # 225 teszt: unit + golden
 npm run bench    # teljesítmény-mérés 4000×3000-en (percekig fut)
 npm run app      # asztali alkalmazásként indítva (Electron)
 npm run app:dist # telepítők Macre és Windowsra → release/
@@ -16,7 +16,9 @@ npm run app:dist # telepítők Macre és Windowsra → release/
 
 ## Letöltés és telepítés
 
-A kész asztali alkalmazás a `release/<verzió>/` mappába épül (`npm run app:dist`), például `release/1.0.1/`:
+**Ha csak használni szeretnéd:** a GitHub oldalon jobbra, a **Releases** alatt van a legfrissebb verzió. Ott az *Assets* listából töltsd le a gépednek valót — Windowson a `DitherLab-<verzió>-Windows-Setup.exe` fájlt. Programozás, Node.js vagy bármi más nem kell hozzá.
+
+Saját gépen építve a telepítők a `release/<verzió>/` mappába kerülnek (`npm run app:dist`):
 
 | Rendszer | Fájl | Megjegyzés |
 |---|---|---|
@@ -30,11 +32,11 @@ A kész asztali alkalmazás a `release/<verzió>/` mappába épül (`npm run app
 - **Mac:** ha azt írja, hogy az appot nem lehet ellenőrizni, nyisd meg a *Rendszerbeállítások → Adatvédelem és biztonság* panelt, és kattints a „Megnyitás mindenképp” gombra (régebbi macOS-en: jobb klikk az appon → Megnyitás).
 - **Windows:** a „A Windows megvédte a számítógépet” ablakban kattints a „További információ”, majd a „Futtatás mindenképp” gombra.
 
-Internet nélkül működik, a képek nem hagyják el a gépet. Az exportált fájlok alapból a Letöltések mappába kerülnek (Beállítások ⚙ → Fájlok mentése).
+Internet nélkül működik, a képek nem hagyják el a gépet. Az exportált fájlok alapból a Letöltések mappába kerülnek (Beállítások → Fájlok mentése).
 
 ## Quick start (English)
 
-DitherLab turns an image into dithered art or a print-ready T-shirt transfer. Install from `release/<version>/` as above — on first launch, Mac: *System Settings → Privacy & Security → Open Anyway*; Windows: *More info → Run anyway*. Then:
+DitherLab turns an image into dithered art or a print-ready T-shirt transfer. Download it from this repository's **Releases** page (on Windows: `DitherLab-<version>-Windows-Setup.exe`) — on first launch, Mac: *System Settings → Privacy & Security → Open Anyway*; Windows: *More info → Run anyway*. Then:
 
 1. Drop an image into the window (or click **Open**, or paste it).
 2. Pick a *Quick start* look, or click **T-shirt print (DTF) →**.

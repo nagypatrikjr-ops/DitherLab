@@ -22,6 +22,7 @@ import { Section } from './components/Section';
 import { ZoomPanView, canvasFromImage, handleViewerKey, type ViewLayer, type ZoomPanHandle } from './components/ZoomPanView';
 import { isTyping, useCommandHandler } from './commands';
 import { saveFile } from './save';
+import { Icon } from './components/Icon';
 
 interface Props {
   client: RenderClient;
@@ -335,11 +336,11 @@ export function ScreenPrintStudio({
                 {GARMENTS.map((g) => <option key={g.id} value={g.id}>{t(g.key)}</option>)}
                 <option value="custom">{t('sp.gCustom')}</option>
               </select>
-              <div className="slider-row" style={{ marginTop: 4 }}>
+              <div className="color-field">
                 <input
                   type="color"
+                  className="swatch-input"
                   aria-label={t('sp.garment')}
-                  style={{ width: 30, height: 24, padding: 0, background: 'none', border: 'none' }}
                   value={garmentHex}
                   onChange={(e) => {
                     const [r, g, b] = hexToRgb(e.target.value);
@@ -348,6 +349,7 @@ export function ScreenPrintStudio({
                 />
                 <input type="text" readOnly aria-label={t('sp.garment')} value={garmentHex} />
               </div>
+              <div className="hint">{t('sp.sub')}</div>
             </div>
             <NumberSlider
               label={t('dtf.width')}
@@ -383,7 +385,7 @@ export function ScreenPrintStudio({
                     aria-pressed={ink.enabled}
                     onClick={() => setInk(ink.id, { enabled: !ink.enabled })}
                   >
-                    {ink.enabled ? '●' : '○'}
+                    <Icon name={ink.enabled ? 'lampOn' : 'lampOff'} size={12} />
                   </button>
                   <input
                     type="color"
@@ -401,7 +403,7 @@ export function ScreenPrintStudio({
                     title={t('common.remove')}
                     aria-label={t('common.remove')}
                     onClick={() => setInks((prev) => prev.filter((i) => i.id !== ink.id))}
-                  >✕</button>
+                  ><Icon name="close" size={12} /></button>
                 </div>
                 <label className="checkbox" style={{ marginLeft: 22 }}>
                   <input
@@ -472,7 +474,8 @@ export function ScreenPrintStudio({
         </div>
 
         <div className="studio-canvas">
-          <div className="view-tabs" role="tablist">
+          <div className="view-tabs">
+            <div className="view-scroll" role="tablist">
             <button
               role="tab"
               aria-selected={view === 'preview'}
@@ -494,6 +497,7 @@ export function ScreenPrintStudio({
                 <span className="cov">{(sep.coverage * 100).toFixed(0)}%</span>
               </button>
             ))}
+            </div>
             <span className="spacer" />
           </div>
           <ZoomPanView
@@ -516,6 +520,7 @@ export function ScreenPrintStudio({
             <NumberSlider
               label={t('dtf.lpi')}
               value={screen.lpi}
+              defaultValue={45}
               min={15}
               max={85}
               step={1}
@@ -642,8 +647,8 @@ export function ScreenPrintStudio({
             <div className="hint">{t('sp.exportHint')}</div>
           </Section>
 
-          {status ? <div className="hint" style={{ padding: '6px 10px' }}>{status}</div> : null}
-          {error ? <div className="error" style={{ padding: '6px 10px' }}>{error}</div> : null}
+          {status ? <div className="hint panel-note">{status}</div> : null}
+          {error ? <div className="error panel-note">{error}</div> : null}
         </div>
       </div>
     </div>

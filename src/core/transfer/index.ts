@@ -5,6 +5,8 @@ export type { TransferRender, TransferOptions } from './engine';
 export { analyzeTransfer, MIN_LINE_MM } from './checks';
 export type { TransferAnalysis, TransferCheck, CheckLevel, AnalysisContext } from './checks';
 export { erodeDisk, dilateDisk, openDisk, squaredDistance } from './morph';
+export { buildSpotPalette, spotLookup, spotDistance, dominantInks, MAX_SPOT_COLORS } from './spot';
+export type { SpotPalette, SpotCandidate } from './spot';
 export {
   analyzeComponents,
   removeSmallInk,

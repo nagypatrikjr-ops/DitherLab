@@ -16,6 +16,8 @@ import { addRecent, getRecent } from '../io/recent';
 import { LANGUAGES, useI18n, useLanguage, type Language } from '../i18n';
 import { ShirtStudio, type StudioMode } from './ShirtStudio';
 import { WelcomeScreen } from './WelcomeScreen';
+import { version } from '../../package.json';
+import { Icon } from './components/Icon';
 import { HelpCenter, type HelpTab } from './HelpCenter';
 import { SettingsDialog } from './SettingsDialog';
 import { commandForKey, isTyping, runCommand, useCommandHandler } from './commands';
@@ -442,13 +444,18 @@ export function App(): JSX.Element {
   return (
     <div className="app">
       <div className="toolbar" role="toolbar">
-        <div className="brand">Dither<span>Lab</span></div>
+        {/* The nameplate. The version is on it because the user has to be able
+            to tell, at a glance, which build is actually running. */}
+        <div className="brand" title={`DitherLab ${version}`}>
+          Dither<span>Lab</span>
+          <em className="brand-version">{version}</em>
+        </div>
         <button className="btn" onClick={() => openPicker()} title={t('app.openTitle', { key: mod('O') })}>
           {t('app.open')}
         </button>
         <span className="tb-sep" />
-        <button className="btn icon" disabled={!canU} onClick={undo} title={t('app.undo', { key: mod('Z') })} aria-label={t('app.undo', { key: mod('Z') })}>↶</button>
-        <button className="btn icon" disabled={!canR} onClick={redo} title={t('app.redo', { key: redoKey() })} aria-label={t('app.redo', { key: redoKey() })}>↷</button>
+        <button className="btn icon" disabled={!canU} onClick={undo} title={t('app.undo', { key: mod('Z') })} aria-label={t('app.undo', { key: mod('Z') })}><Icon name="undo" /></button>
+        <button className="btn icon" disabled={!canR} onClick={redo} title={t('app.redo', { key: redoKey() })} aria-label={t('app.redo', { key: redoKey() })}><Icon name="redo" /></button>
         <span className="tb-sep" />
         <button className="btn" disabled={!hasImage} onClick={() => runRender(true)} title={t('app.renderTitle')}>
           {t('app.render')}
@@ -476,9 +483,9 @@ export function App(): JSX.Element {
           {t('app.dtf')}
         </button>
         <span className="spacer" />
-        <button className="btn icon" disabled={!hasImage} onClick={() => zoomBy(1 / 1.5)} title={t('app.zoomOut')} aria-label={t('app.zoomOut')}>−</button>
+        <button className="btn icon" disabled={!hasImage} onClick={() => zoomBy(1 / 1.5)} title={t('app.zoomOut')} aria-label={t('app.zoomOut')}><Icon name="zoomOut" /></button>
         <span className="zoom-readout">{Math.round(zoom * 100)}%</span>
-        <button className="btn icon" disabled={!hasImage} onClick={() => zoomBy(1.5)} title={t('app.zoomIn')} aria-label={t('app.zoomIn')}>+</button>
+        <button className="btn icon" disabled={!hasImage} onClick={() => zoomBy(1.5)} title={t('app.zoomIn')} aria-label={t('app.zoomIn')}><Icon name="zoomIn" /></button>
         <button className="btn" disabled={!hasImage} onClick={() => requestView('fit')} title={t('app.fitTitle')}>{t('app.fit')}</button>
         <button className="btn" disabled={!hasImage} onClick={() => requestView('actual')} title={t('app.actualTitle')}>1:1</button>
         <span className="tb-sep" />
@@ -494,10 +501,10 @@ export function App(): JSX.Element {
           ))}
         </select>
         <button className="btn" onClick={() => setHelp('start')} title={t('app.helpTitle')}>
-          ? {t('app.help')}
+          {t('app.help')}
         </button>
         <button className="btn icon" onClick={() => setSettingsOpen(true)} title={t('app.settingsTitle', { key: mod(',') })} aria-label={t('app.settings')}>
-          ⚙
+          <Icon name="settings" />
         </button>
       </div>
 

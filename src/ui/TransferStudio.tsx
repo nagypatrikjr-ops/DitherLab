@@ -8,15 +8,21 @@ import {
   GARMENTS,
   LOOKS,
   MAX_PRINT_MM,
+  MAX_SPOT_COLORS,
+  DEFAULT_SPOT_TOLERANCE,
   PLACEMENTS,
   PRESS_SETTINGS,
   SHIRT_SIZES,
+  dominantInks,
   effectiveMinDotMm,
   mmToPx,
   transferSize,
   type EdgeFadeShape,
   type Placement,
   type ShirtSize,
+  type SpotCandidate,
+  type SpotOther,
+  type SpotSettings,
   type TransferDotShape,
   type TransferScreen,
   type TransferSettings,
@@ -32,6 +38,7 @@ import { createZip, type ZipEntry } from '../io/zip';
 import { RenderClient, type TransferAnalysisResult, type TransferPreview } from '../workers/client';
 import { useI18n, type I18n, type MessageKey, type Vars } from '../i18n';
 import { usePrefs } from '../state/prefs';
+import { Icon } from './components/Icon';
 import { NumberSlider } from './components/NumberSlider';
 import { Section } from './components/Section';
 import {
@@ -316,6 +323,11 @@ export function TransferStudio({
     kind: 'color' | 'white';
   } | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  // Colours read off the print, for the ink filter. They have to come from a
+  // render the filter has not already narrowed, so the last unfiltered one is
+  // kept aside rather than read back out of whatever is on screen.
+  const [inkCandidates, setInkCandidates] = useState<SpotCandidate[] | null>(null);
+  const unfiltered = useRef<Uint8ClampedArray | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -559,6 +571,23 @@ export function TransferStudio({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoTuneOn, heavy, dtfSourceId, garmentKey, preference, s.chokeMm, s.dpi, tuneNonce]);
 
+  // ---- Ink filter: the colours the print actually uses --------------------
+  const spotActive = s.spot.enabled && s.spot.colors.length > 0;
+  useEffect(() => {
+    if (preview === null || spotActive) return;
+    unfiltered.current = preview.image.data;
+  }, [preview, spotActive]);
+
+  useEffect(() => {
+    unfiltered.current = null;
+    setInkCandidates(null);
+  }, [dtfSourceId]);
+
+  useEffect(() => {
+    if (!s.spot.enabled || inkCandidates !== null || unfiltered.current === null) return;
+    setInkCandidates(dominantInks(unfiltered.current, 6));
+  }, [s.spot.enabled, inkCandidates, preview]);
+
   const saveKey = (): void => {
     const k = keyDraft.trim();
     if (k === '') return;
@@ -768,6 +797,38 @@ export function TransferStudio({
     setS((prev) => ({ ...prev, screen: { ...prev.screen, ...next } }));
   const patchAdjust = (next: Partial<TransferSettings['adjust']>): void =>
     setS((prev) => ({ ...prev, adjust: { ...prev.adjust, ...next } }));
+  const patchSpot = (next: Partial<SpotSettings>): void =>
+    setS((prev) => ({ ...prev, spot: { ...prev.spot, ...next } }));
+
+  const inkHex = (c: RGB): string => rgbToHex(c.r, c.g, c.b);
+  const setInk = (i: number, hex: string): void =>
+    setS((prev) => {
+      const [r, g, b] = hexToRgb(hex);
+      const colors = prev.spot.colors.map((c, k) => (k === i ? { r, g, b } : c));
+      return { ...prev, spot: { ...prev.spot, colors } };
+    });
+  const removeInk = (i: number): void =>
+    setS((prev) => ({ ...prev, spot: { ...prev.spot, colors: prev.spot.colors.filter((_, k) => k !== i) } }));
+  const addInk = (): void =>
+    setS((prev) => {
+      if (prev.spot.colors.length >= MAX_SPOT_COLORS) return prev;
+      // Offer the most-used colour that is not on the list yet; failing that,
+      // white, which is the one ink every dark-shirt transfer already carries.
+      const taken = new Set(prev.spot.colors.map(inkHex));
+      const next = (inkCandidates ?? []).find((c) => !taken.has(inkHex(c.color)))?.color ?? { r: 1, g: 1, b: 1 };
+      return { ...prev, spot: { ...prev.spot, colors: [...prev.spot.colors, next] } };
+    });
+  const toggleInk = (c: RGB): void =>
+    setS((prev) => {
+      const hex = inkHex(c);
+      const has = prev.spot.colors.some((x) => inkHex(x) === hex);
+      const colors = has
+        ? prev.spot.colors.filter((x) => inkHex(x) !== hex)
+        : prev.spot.colors.length >= MAX_SPOT_COLORS
+          ? prev.spot.colors
+          : [...prev.spot.colors, c];
+      return { ...prev, spot: { ...prev.spot, colors } };
+    });
 
   const choosePlacement = (id: string): void => {
     const pl = PLACEMENTS.find((x) => x.id === id);
@@ -777,7 +838,9 @@ export function TransferStudio({
   };
 
   const resetToRecommended = (): void => {
-    setS((prev) => ({ ...DEFAULT_TRANSFER, garment: prev.garment, widthMm: prev.widthMm, dpi: prev.dpi }));
+    // The ink filter is the user's own colour choice, not a print setting the
+    // recommendations have an opinion about, so it survives the reset.
+    setS((prev) => ({ ...DEFAULT_TRANSFER, garment: prev.garment, widthMm: prev.widthMm, dpi: prev.dpi, spot: prev.spot }));
     setPreference('balanced');
     setAutoTuneOn(true);
     setTuneNonce((n) => n + 1);
@@ -853,6 +916,7 @@ export function TransferStudio({
             solid: Math.round(s.knockout.solidPoint * 100),
           })
         : t('ticket.knockoutOff'),
+      ...(spotActive ? [t('ticket.inks', { list: s.spot.colors.map(inkHex).join(', ') })] : []),
       s.screen.kind === 'am'
         ? t('ticket.screenAm', { lpi: s.screen.lpi, angle: num(s.screen.angle, 1), shape: t(SHAPE_NAME_KEYS[s.screen.shape]) })
         : t('ticket.screenFm'),
@@ -1022,7 +1086,7 @@ export function TransferStudio({
                 {GARMENTS.map((g) => <option key={g.id} value={g.id}>{core(g.name)}</option>)}
                 <option value="custom" disabled>{t('dtf.custom')}</option>
               </select>
-              <div className="slider-row" style={{ marginTop: 4 }}>
+              <div className="color-field">
                 <input
                   type="color"
                   className="swatch-input"
@@ -1035,6 +1099,7 @@ export function TransferStudio({
                 />
                 <input type="text" readOnly aria-label={t('dtf.shirtColor')} value={rgbToHex(s.garment.r, s.garment.g, s.garment.b)} />
               </div>
+              <div className="hint">{t('dtf.shirtColorHint')}</div>
             </div>
             <div className="field">
               <div className="label"><span>{t('dtf.size')}</span></div>
@@ -1089,6 +1154,121 @@ export function TransferStudio({
             </div>
           </Section>
 
+          <Section title={t('spot.section')} defaultOpen={false}>
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                checked={s.spot.enabled}
+                onChange={(e) => patchSpot({ enabled: e.target.checked })}
+              />
+              <span>{t('spot.on')}</span>
+            </label>
+            <div className="hint">{t('spot.intro')}</div>
+            {s.spot.enabled ? (
+              <>
+                <div className="field">
+                  <div className="label">
+                    <span>{t('spot.fromImage')}</span>
+                    <button className="btn small" onClick={() => setInkCandidates(null)}>{t('spot.reread')}</button>
+                  </div>
+                  {inkCandidates === null || inkCandidates.length === 0 ? (
+                    <div className="hint">{t('spot.waiting')}</div>
+                  ) : (
+                    <>
+                      <div className="spot-row">
+                        {inkCandidates.map((c) => {
+                          const hex = inkHex(c.color);
+                          const on = s.spot.colors.some((x) => inkHex(x) === hex);
+                          const label = `${hex} — ${t('spot.share', { pct: num(c.share * 100, 1) })}`;
+                          return (
+                            <button
+                              key={hex}
+                              className={`spot-swatch${on ? ' active' : ''}`}
+                              style={{ background: hex }}
+                              title={label}
+                              aria-label={label}
+                              aria-pressed={on}
+                              onClick={() => toggleInk(c.color)}
+                            >
+                              <span className="spot-pct">{num(c.share * 100, 0)}%</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="hint">{t('spot.pick')}</div>
+                    </>
+                  )}
+                </div>
+
+                <div className="field">
+                  <div className="label"><span>{t('spot.picked')}</span></div>
+                  {s.spot.colors.length === 0 ? <div className="hint">{t('spot.none')}</div> : null}
+                  {s.spot.colors.map((c, i) => (
+                    <div className="color-field" key={`${inkHex(c)}-${i}`}>
+                      <input
+                        type="color"
+                        className="swatch-input"
+                        aria-label={t('spot.picked')}
+                        value={inkHex(c)}
+                        onChange={(e) => setInk(i, e.target.value)}
+                      />
+                      <input type="text" readOnly aria-label={t('spot.picked')} value={inkHex(c)} />
+                      <button className="btn small" title={t('spot.remove')} aria-label={t('spot.remove')} onClick={() => removeInk(i)}>
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                  {s.spot.colors.length < MAX_SPOT_COLORS ? (
+                    <button className="btn wide" style={{ marginTop: 6 }} onClick={addInk}>{t('spot.add')}</button>
+                  ) : (
+                    <div className="hint">{t('spot.limit', { n: MAX_SPOT_COLORS })}</div>
+                  )}
+                </div>
+
+                <div className="field">
+                  <div className="label"><span>{t('spot.other')}</span></div>
+                  <select
+                    value={s.spot.other}
+                    aria-label={t('spot.other')}
+                    onChange={(e) => patchSpot({ other: e.target.value as SpotOther })}
+                  >
+                    <option value="remove">{t('spot.otherRemove')}</option>
+                    <option value="nearest">{t('spot.otherNearest')}</option>
+                    <option value="color">{t('spot.otherColor')}</option>
+                  </select>
+                  {s.spot.other === 'color' ? (
+                    <div className="color-field" style={{ marginTop: 4 }}>
+                      <input
+                        type="color"
+                        className="swatch-input"
+                        aria-label={t('spot.otherColor')}
+                        value={inkHex(s.spot.otherColor)}
+                        onChange={(e) => {
+                          const [r, g, b] = hexToRgb(e.target.value);
+                          patchSpot({ otherColor: { r, g, b } });
+                        }}
+                      />
+                      <input type="text" readOnly aria-label={t('spot.otherColor')} value={inkHex(s.spot.otherColor)} />
+                    </div>
+                  ) : null}
+                </div>
+
+                <NumberSlider
+                  label={t('spot.tolerance')}
+                  value={s.spot.tolerance}
+                  defaultValue={DEFAULT_SPOT_TOLERANCE}
+                  min={5}
+                  max={100}
+                  step={1}
+                  onChange={(v) => patchSpot({ tolerance: Math.round(v) })}
+                  onCommit={() => undefined}
+                />
+                <div className="hint">{t('spot.toleranceHint')}</div>
+                <div className="hint">{t('spot.hint')}</div>
+              </>
+            ) : null}
+          </Section>
+
           {!simple ? (
             <>
               <Section title={t('dtf.knockout')}>
@@ -1116,6 +1296,7 @@ export function TransferStudio({
                     <NumberSlider
                       label={t('dtf.tolerance')}
                       value={s.knockout.tolerance}
+                      defaultValue={DEFAULT_TRANSFER.knockout.tolerance}
                       min={0}
                       max={0.4}
                       step={0.005}
@@ -1126,6 +1307,7 @@ export function TransferStudio({
                     <NumberSlider
                       label={t('dtf.solid')}
                       value={s.knockout.solidPoint}
+                      defaultValue={DEFAULT_TRANSFER.knockout.solidPoint}
                       min={0.1}
                       max={1}
                       step={0.01}
@@ -1136,6 +1318,7 @@ export function TransferStudio({
                     <NumberSlider
                       label={t('dtf.density')}
                       value={s.knockout.density}
+                      defaultValue={DEFAULT_TRANSFER.knockout.density}
                       min={0.5}
                       max={2}
                       step={0.01}
@@ -1147,11 +1330,11 @@ export function TransferStudio({
               </Section>
 
               <Section title={t('dtf.improve')} defaultOpen={false}>
-                <NumberSlider label={t('dtf.contrast')} value={s.adjust.contrast} min={-0.5} max={0.8} step={0.01}
+                <NumberSlider label={t('dtf.contrast')} value={s.adjust.contrast} min={-0.5} max={0.8} step={0.01} defaultValue={0}
                   onChange={(v) => patchAdjust({ contrast: v })} onCommit={() => undefined} />
-                <NumberSlider label={t('dtf.saturation')} value={s.adjust.saturation} min={-1} max={1} step={0.01}
+                <NumberSlider label={t('dtf.saturation')} value={s.adjust.saturation} min={-1} max={1} step={0.01} defaultValue={0}
                   onChange={(v) => patchAdjust({ saturation: v })} onCommit={() => undefined} />
-                <NumberSlider label={t('dtf.sharpen')} value={s.adjust.sharpen} min={0} max={2} step={0.01}
+                <NumberSlider label={t('dtf.sharpen')} value={s.adjust.sharpen} min={0} max={2} step={0.01} defaultValue={0}
                   onChange={(v) => patchAdjust({ sharpen: v })} onCommit={() => undefined} />
               </Section>
 
@@ -1185,7 +1368,7 @@ export function TransferStudio({
         <div className="studio-canvas">
           <div className={`status-banner ${banner.kind}`} role="status">
             <span className="sb-mark" aria-hidden="true">
-              {banner.kind === 'ok' ? '✓' : banner.kind === 'warn' ? '!' : banner.kind === 'error' ? '✕' : '…'}
+              <Icon name={banner.kind === 'ok' ? 'check' : banner.kind === 'warn' ? 'alert' : banner.kind === 'error' ? 'cross' : 'dots'} size={11} />
             </span>
             <strong>{banner.title}</strong>
             {banner.text ? <span className="sb-text">{banner.text}</span> : <span className="sb-text" />}
@@ -1193,7 +1376,8 @@ export function TransferStudio({
               <button className="btn small" onClick={showProblems}>{t('dtf.statusShow')}</button>
             ) : null}
           </div>
-          <div className="view-tabs" role="tablist">
+          <div className="view-tabs">
+            <div className="view-scroll" role="tablist">
             {VIEWS.map(([id, key]) => (
               <button
                 key={id}
@@ -1206,6 +1390,7 @@ export function TransferStudio({
                 {id === 'problems' && errorCount + warnCount > 0 ? <span className="cov"> {errorCount + warnCount}</span> : null}
               </button>
             ))}
+            </div>
             <span className="spacer" />
             {view === 'background' ? (
               <span className="bg-picker" role="group" aria-label={t('view.bgLabel')}>
@@ -1250,6 +1435,38 @@ export function TransferStudio({
             badge={preview === null ? t('dtf.calculating') : detailLoading ? t('view.loadingDetail') : null}
             onViewChange={onViewChange}
           />
+          {/* The wall readout: the six numbers the job is actually specified by,
+              in one place, so nothing has to be dug out of a panel again. */}
+          <div className="readout" role="group" aria-label={t('dtf.check')}>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.size')}</span>
+              <span className="readout-value">{num(s.widthMm / 10, 1)} × {num(full.heightMm / 10, 1)} cm</span>
+            </span>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.file')}</span>
+              <span className="readout-value">{full.width} × {full.height} px</span>
+            </span>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.res')}</span>
+              <span className="readout-value">{s.dpi} DPI</span>
+            </span>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.screen')}</span>
+              <span className="readout-value">
+                {s.screen.kind === 'am' ? `${s.screen.lpi} LPI · ${num(s.screen.angle, 1)}°` : t('dtf.fm')}
+              </span>
+            </span>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.dot')}</span>
+              <span className="readout-value">{num(eff, 2)} mm</span>
+            </span>
+            <span className="readout-cell">
+              <span className="readout-label">{t('readout.ink')}</span>
+              <span className="readout-value">
+                {analysis === null ? t('readout.pending') : `${num(analysis.stats.inkFraction * 100, 1)} %`}
+              </span>
+            </span>
+          </div>
           <div className="film-note">
             <span>
               {view === 'shirt' && t('dtf.noteShirt')}
@@ -1311,7 +1528,11 @@ export function TransferStudio({
                 ) : null}
               </div>
             ) : null}
+            <div className="hint">{t('dtf.autoFree')}</div>
+          </Section>
 
+          <Section title={t('claude.section')} defaultOpen={false}>
+            <div className="hint">{t('claude.optional')}</div>
             <div className="claude-box">
               <div className="claude-head">
                 <strong>{t('claude.title')}</strong>
@@ -1409,10 +1630,10 @@ export function TransferStudio({
                 </div>
                 {s.screen.kind === 'am' ? (
                   <>
-                    <NumberSlider label={t('dtf.lpi')} value={s.screen.lpi} min={15} max={60} step={1} unit="LPI"
+                    <NumberSlider label={t('dtf.lpi')} value={s.screen.lpi} min={15} max={60} step={1} unit="LPI" defaultValue={DEFAULT_TRANSFER.screen.lpi}
                       onChange={(v) => patchScreen({ lpi: Math.round(v) })} onCommit={() => undefined} />
                     <div className="hint">{t('dtf.lpiHint')}</div>
-                    <NumberSlider label={t('dtf.angle')} value={s.screen.angle} min={0} max={90} step={0.5} unit="°"
+                    <NumberSlider label={t('dtf.angle')} value={s.screen.angle} min={0} max={90} step={0.5} unit="°" defaultValue={DEFAULT_TRANSFER.screen.angle}
                       onChange={(v) => patchScreen({ angle: v })} onCommit={() => undefined} />
                     <div className="field">
                       <div className="label"><span>{t('dtf.dotShape')}</span></div>
@@ -1432,7 +1653,7 @@ export function TransferStudio({
                     </div>
                   </>
                 ) : null}
-                <NumberSlider label={t('dtf.minDot')} value={s.screen.minDotMm} min={0.3} max={1.2} step={0.01} unit="mm"
+                <NumberSlider label={t('dtf.minDot')} value={s.screen.minDotMm} min={0.3} max={1.2} step={0.01} unit="mm" defaultValue={DEFAULT_TRANSFER.screen.minDotMm}
                   onChange={(v) => patchScreen({ minDotMm: v })} onCommit={() => undefined} />
                 <div className="hint">
                   {t('dtf.minDotHint')}
@@ -1441,7 +1662,7 @@ export function TransferStudio({
               </Section>
 
               <Section title={t('dtf.rip')}>
-                <NumberSlider label={t('dtf.choke')} value={s.chokeMm} min={0} max={0.5} step={0.01} unit="mm"
+                <NumberSlider label={t('dtf.choke')} value={s.chokeMm} min={0} max={0.5} step={0.01} unit="mm" defaultValue={DEFAULT_TRANSFER.chokeMm}
                   onChange={(v) => patch({ chokeMm: v })} onCommit={() => undefined} />
                 <div className="hint">{t('dtf.chokeHint', { px: num(mmToPx(s.chokeMm, 300), 1) })}</div>
                 <label className="checkbox">
@@ -1466,7 +1687,7 @@ export function TransferStudio({
                   {analysis.checks.map((c) => (
                     <div key={c.id} className={`check ${c.level}`}>
                       <span className="mark" aria-hidden="true">
-                        {c.level === 'ok' ? '✓' : c.level === 'info' ? 'i' : c.level === 'warn' ? '!' : '✕'}
+                        <Icon name={c.level === 'ok' ? 'check' : c.level === 'info' ? 'info' : c.level === 'warn' ? 'alert' : 'cross'} size={11} />
                       </span>
                       <div>
                         <div className="check-title">{core(c.title)}</div>
@@ -1516,8 +1737,8 @@ export function TransferStudio({
             </div>
           </Section>
 
-          {status ? <div className="hint" style={{ padding: '6px 10px' }}>{status}</div> : null}
-          {error ? <div className="error" style={{ padding: '6px 10px' }}>{error}</div> : null}
+          {status ? <div className="hint panel-note">{status}</div> : null}
+          {error ? <div className="error panel-note">{error}</div> : null}
         </div>
       </div>
     </div>

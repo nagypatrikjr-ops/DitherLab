@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Section } from '../components/Section';
+import { Icon } from '../components/Icon';
 import { ParamControls } from '../components/ParamControls';
 import { NumberSlider } from '../components/NumberSlider';
 import { useStore } from '../../state/store';
@@ -60,7 +61,7 @@ export function LayerPanel(): JSX.Element {
         right={
           <select
             value=""
-            style={{ width: 130 }}
+            style={{ width: 108 }}
             aria-label={t('layers.addTitle')}
             title={t('layers.addTitle')}
             onChange={(e) => {
@@ -95,19 +96,32 @@ export function LayerPanel(): JSX.Element {
                 ].join(' ').trim()}
                 onClick={() => selectLayer(layer.id)}
                 draggable
-                onDragStart={() => setDragId(layer.id)}
-                onDragOver={(e) => { e.preventDefault(); setDropIndex(index); }}
+                onDragStart={(e) => {
+                  setDragId(layer.id);
+                  // Firefox refuses to start a drag that carries no payload.
+                  e.dataTransfer.effectAllowed = 'move';
+                  e.dataTransfer.setData('text/plain', layer.id);
+                }}
+                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDropIndex(index); }}
                 onDragLeave={() => setDropIndex((v) => (v === index ? null : v))}
                 onDrop={(e) => {
                   e.preventDefault();
-                  if (dragId) moveLayer(dragId, index);
+                  const id = dragId ?? e.dataTransfer.getData('text/plain');
+                  if (id) moveLayer(id, index);
                   setDragId(null);
                   setDropIndex(null);
                 }}
                 onDragEnd={() => { setDragId(null); setDropIndex(null); }}
+                onKeyDown={(e) => {
+                  // Alt + arrows move the layer; plain arrows still scroll.
+                  if (!e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+                  e.preventDefault();
+                  const to = e.key === 'ArrowUp' ? index - 1 : index + 1;
+                  if (to >= 0 && to < layers.length) moveLayer(layer.id, to);
+                }}
               >
                 <span className="idx">{index + 1}</span>
-                <span className="drag" title={t('layers.drag')}>⠿</span>
+                <span className="drag" title={t('layers.drag')}><Icon name="grip" size={12} /></span>
                 <button
                   className="mini"
                   title={layer.enabled ? t('layers.disable') : t('layers.enable')}
@@ -115,7 +129,7 @@ export function LayerPanel(): JSX.Element {
                   aria-pressed={layer.enabled}
                   onClick={(e) => { e.stopPropagation(); toggleLayer(layer.id); }}
                 >
-                  {layer.enabled ? '●' : '○'}
+                  <Icon name={layer.enabled ? 'lampOn' : 'lampOff'} size={12} />
                 </button>
                 <button
                   className="layer-name"
@@ -129,13 +143,13 @@ export function LayerPanel(): JSX.Element {
                   title={t('common.duplicate')}
                   aria-label={t('common.duplicate')}
                   onClick={(e) => { e.stopPropagation(); duplicateLayer(layer.id); }}
-                >⧉</button>
+                ><Icon name="duplicate" size={12} /></button>
                 <button
                   className="mini"
                   title={t('common.remove')}
                   aria-label={t('common.remove')}
                   onClick={(e) => { e.stopPropagation(); removeLayer(layer.id); }}
-                >✕</button>
+                ><Icon name="close" size={12} /></button>
               </div>
             );
           })}

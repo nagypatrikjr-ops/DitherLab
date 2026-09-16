@@ -50,6 +50,20 @@ export interface TransferScreenSettings {
   seed: number;
 }
 
+/** What happens to a colour that is not near any of the chosen inks. */
+export type SpotOther = 'remove' | 'nearest' | 'color';
+
+export interface SpotSettings {
+  enabled: boolean;
+  /** The ink colours the file may contain, sRGB 0..1. Empty means "no filter". */
+  colors: RGB[];
+  other: SpotOther;
+  /** The colour everything else becomes, when `other` is 'color'. */
+  otherColor: RGB;
+  /** How far a colour may sit from an ink and still count as it, in ΔE*ab. */
+  tolerance: number;
+}
+
 export interface TransferSettings {
   garment: RGB;
   /** Final printed width in millimetres; height follows the artwork. */
@@ -66,6 +80,11 @@ export interface TransferSettings {
   cleanup: boolean;
   /** Mirror the exported file. A DTF service or RIP normally does this itself. */
   mirror: boolean;
+  /**
+   * Restrict the ink colours in the file to a named set. Off by default: it
+   * only ever recolours or drops pixels, never changes the dots themselves.
+   */
+  spot: SpotSettings;
 }
 
 /** Largest supported print edge. Covers every garment placement with room to spare. */
@@ -85,6 +104,25 @@ export const SOLID_ALPHA = 0.97;
 
 /** Coverage below this is numerical noise from resampling, never a dot. */
 export const ALPHA_FLOOR = 0.015;
+
+/**
+ * Nearness limit of the spot filter, in ΔE*ab, where one unit is about the
+ * smallest difference an eye can see. It has to clear the blends: an edge
+ * between two inks runs through every mix of them, and the middle of that
+ * range sits some 50 ΔE from both. Below that the filter eats the anti-
+ * aliasing and leaves a gap along every edge; well above it, foreign colours
+ * stop being foreign. Two inks of clearly different hue are 100 apart.
+ */
+export const DEFAULT_SPOT_TOLERANCE = 55;
+
+/** The filter off, which is how every render behaves unless it is turned on. */
+export const DEFAULT_SPOT: SpotSettings = {
+  enabled: false,
+  colors: [],
+  other: 'remove',
+  otherColor: { r: 1, g: 1, b: 1 },
+  tolerance: DEFAULT_SPOT_TOLERANCE,
+};
 
 export const DEFAULT_TRANSFER: TransferSettings = {
   garment: { r: 0.055, g: 0.055, b: 0.06 },
@@ -107,6 +145,7 @@ export const DEFAULT_TRANSFER: TransferSettings = {
   chokeMm: 0.17,
   cleanup: true,
   mirror: false,
+  spot: DEFAULT_SPOT,
 };
 
 export function mmToPx(mm: number, dpi: number): number {

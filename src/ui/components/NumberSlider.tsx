@@ -9,6 +9,11 @@ interface Props {
   step?: number;
   unit?: string;
   curve?: 'linear' | 'log';
+  /**
+   * The recommended setting. It is engraved on the scale as a tick and is
+   * what a double-click returns to, the way a detent works on real gear.
+   */
+  defaultValue?: number;
   onChange: (value: number, transient: boolean) => void;
   onCommit: () => void;
 }
@@ -35,7 +40,7 @@ function fromNorm(t: number, min: number, max: number, log: boolean): number {
  * a keyboard slider: arrows step, Shift+arrows step ten, Home/End jump.
  */
 export function NumberSlider({
-  label, value, min, max, step = 0.01, unit, curve, onChange, onCommit,
+  label, value, min, max, step = 0.01, unit, curve, defaultValue, onChange, onCommit,
 }: Props): JSX.Element {
   const { t, lang } = useI18n();
   const trackRef = useRef<HTMLDivElement>(null);
@@ -125,6 +130,10 @@ export function NumberSlider({
   const norm = toNorm(value, min, max, log);
   const pct = `${Math.min(100, Math.max(0, norm * 100))}%`;
   const shown = formatValue(value, step, lang === 'hu');
+  const homePct =
+    defaultValue === undefined || defaultValue < min || defaultValue > max
+      ? null
+      : `${Math.min(100, Math.max(0, toNorm(defaultValue, min, max, log) * 100))}%`;
 
   return (
     <div className="field">
@@ -143,18 +152,19 @@ export function NumberSlider({
           aria-valuemax={max}
           aria-valuenow={value}
           aria-valuetext={unit ? `${shown} ${unit}` : shown}
-          title={t('params.fine')}
+          title={defaultValue === undefined ? t('params.fine') : t('params.fineReset')}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onKeyDown={handleKey}
           onDoubleClick={() => {
-            onChange(quantize(value), false);
+            if (defaultValue !== undefined) onChange(quantize(defaultValue), false);
           }}
         >
           <div className="track" />
           <div className="fill" style={{ width: pct }} />
+          {homePct === null ? null : <div className="home" style={{ left: homePct }} />}
           <div className="knob" style={{ left: pct }} />
         </div>
         <input
@@ -179,8 +189,14 @@ export function NumberSlider({
   );
 }
 
+/**
+ * A readout keeps the same number of decimals whatever the value, so the
+ * digits do not shuffle sideways while the slider is being dragged. (The old
+ * version stripped "1.00" to "1" but left "1.50" alone, which made the width
+ * of the field depend on the value in a way nobody could predict.)
+ */
 function formatValue(v: number, step: number, comma: boolean): string {
   const decimals = step >= 1 ? 0 : step >= 0.1 ? 1 : step >= 0.01 ? 2 : 3;
-  const s = v.toFixed(decimals).replace(/\.?0+$/, (m) => (m.includes('.') ? '' : m));
+  const s = v.toFixed(decimals);
   return comma ? s.replace('.', ',') : s;
 }

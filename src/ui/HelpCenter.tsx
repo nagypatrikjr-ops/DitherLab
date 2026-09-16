@@ -46,6 +46,7 @@ export function HelpCenter({ tab, onTab, onClose, onOpenImage, onOpenDtf, hasIma
     [t('keys.arrowsKey'), 'keys.arrows'],
     [t('keys.dblclickKey'), 'keys.dblclick'],
     ['1–9', 'keys.layers'],
+    [t('keys.moveLayerKey'), 'keys.moveLayer'],
     ['R', 'keys.render'],
     [t('keys.shiftDrag'), 'keys.fine'],
     ['?', 'keys.help'],

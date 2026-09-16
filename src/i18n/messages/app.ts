@@ -185,6 +185,7 @@ export const appEn = {
   'params.origin': 'The current pixel',
   'params.matrixHint': 'The middle of row 0 is the current pixel; cells before it receive no error.',
   'params.fine': 'Drag to change, hold Shift for fine steps, type an exact value on the right.',
+  'params.fineReset': 'Drag to change, hold Shift for fine steps, double-click for the recommended value (the tick on the scale), or type an exact one on the right.',
 
   'export.title': 'Export image',
   'export.indexed': 'PNG (indexed)',
@@ -389,6 +390,7 @@ export const appHu: { readonly [K in keyof typeof appEn]: string } = {
   'params.origin': 'Az aktuális pixel helye',
   'params.matrixHint': 'A 0. sor közepe az aktuális pixel; előtte lévő cellák nem terjesztenek hibát.',
   'params.fine': 'Húzással állítható, Shift-tel finoman; jobbra pontos érték is beírható.',
+  'params.fineReset': 'Húzással állítható, Shift-tel finoman; dupla kattintásra visszaáll az ajánlott értékre (az a vonás a skálán), jobbra pontos érték is beírható.',
 
   'export.title': 'Kép export',
   'export.indexed': 'PNG (indexelt)',

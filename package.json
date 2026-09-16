@@ -1,7 +1,7 @@
 {
   "name": "ditherlab",
   "productName": "DitherLab",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "description": "Dithering, halftones and print-ready T-shirt files (DTF, screen print). Runs entirely on your computer.",
   "author": {
     "name": "DitherLab"
@@ -58,8 +58,18 @@
       "category": "public.app-category.graphics-design",
       "icon": "build/icon.png",
       "target": [
-        { "target": "dmg", "arch": ["universal"] },
-        { "target": "zip", "arch": ["universal"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
       ],
       "artifactName": "DitherLab-${version}-mac.${ext}",
       "extendInfo": {
@@ -86,8 +96,18 @@
     "win": {
       "icon": "build/icon.png",
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "zip", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "artifactName": "DitherLab-${version}-Windows-portable.${ext}"
     },

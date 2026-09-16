@@ -1,5 +1,6 @@
 import { useToasts } from '../toasts';
 import { useI18n } from '../../i18n';
+import { Icon } from './Icon';
 
 export function Toasts(): JSX.Element {
   const toasts = useToasts((s) => s.toasts);
@@ -22,7 +23,7 @@ export function Toasts(): JSX.Element {
             </button>
           ) : null}
           <button className="toast-close" aria-label={t('common.close')} onClick={() => dismiss(item.id)}>
-            ✕
+            <Icon name="close" size={11} />
           </button>
         </div>
       ))}

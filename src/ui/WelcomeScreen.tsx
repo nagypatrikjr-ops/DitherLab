@@ -4,6 +4,7 @@ import { clearRecent, listRecent, removeRecent, type RecentMeta } from '../io/re
 import { usePrefs } from '../state/prefs';
 import { mod } from './platform';
 import type { StudioMode } from './ShirtStudio';
+import { Icon } from './components/Icon';
 
 interface Props {
   onOpen: (then?: StudioMode) => void;
@@ -128,7 +129,7 @@ export function WelcomeScreen({ onOpen, onSample, onRecent, onHelp }: Props): JS
                       setRecent((items) => items.filter((x) => x.id !== r.id));
                     }}
                   >
-                    ✕
+                    <Icon name="close" size={11} />
                   </button>
                 </div>
               ))}

@@ -44,7 +44,7 @@ function en(mod: (key: string) => string, version: string): HelpContent {
         'Scroll or pinch to zoom, drag to move the image, press F to fit it back into the window.',
         'Sliders: drag for big steps, hold Shift for fine steps, or type an exact number into the box.',
         'Large images are previewed at a lower resolution to stay fast. Exports always use the full resolution.',
-        'Settings (⚙) has the interface language, the interface size and where files are saved.',
+        `Settings (${mod(',')}) has the interface language, the interface size and where files are saved.`,
       ],
     },
     dtf: {
@@ -61,6 +61,10 @@ function en(mod: (key: string) => string, version: string): HelpContent {
         {
           title: 'Let the automatic settings work',
           text: 'For every image the program tunes the knockout so dark tones come from the shirt, not from grey ink printed on white. Pick “More solid”, “Balanced” or “More open” to taste.',
+        },
+        {
+          title: 'Name the inks, if the design has only a few',
+          text: 'Under “Ink colours” you can say which colours may be printed. The panel reads the colours out of the print and shows how much of it each one covers; click the ones you want. Everything else is either left unprinted or takes one of your colours — which is how you get rid of stray specks a scan or a JPEG left in a two- or three-colour design. It never changes the dots: the shading stays exactly as it was, only the colour a dot prints with can change.',
         },
         {
           title: 'Check',
@@ -141,7 +145,7 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
         'Görgetéssel vagy csippentéssel nagyítasz, húzással mozgatod a képet, F-fel visszaigazítod az ablakhoz.',
         'Csúszkák: húzással nagy lépés, Shift-tel finom lépés, a mezőbe pontos szám is írható.',
         'A nagy képek előnézete a gyorsaság miatt kisebb felbontású. Az export mindig teljes felbontással készül.',
-        'A Beállításokban (⚙) van a felület nyelve, mérete és a mentés helye.',
+        `A Beállításokban (${mod(',')}) van a felület nyelve, mérete és a mentés helye.`,
       ],
     },
     dtf: {
@@ -158,6 +162,10 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
         {
           title: 'Hagyd dolgozni az automatikus beállítást',
           text: 'Minden képnél úgy hangolja a kiütést, hogy a sötét tónusokat a póló adja, ne fehér alapra nyomott szürke festék. Ízlés szerint válaszd a „Tömörebb”, „Kiegyensúlyozott” vagy „Légáteresztőbb” irányt.',
+        },
+        {
+          title: 'Add meg a festékszíneket, ha kevés színnel dolgozol',
+          text: 'A „Festékszínek” alatt megmondhatod, mely színek kerüljenek nyomtatásra. A panel kiolvassa a nyomat színeit, és megmutatja, melyik mekkora részét fedi; kattints azokra, amelyeket kérsz. A többi vagy nem nyomódik, vagy az egyik választott színedet kapja — így tűnnek el a szkennelés vagy a JPEG hagyta idegen pöttyök egy két-három színű munkából. A pontokhoz nem nyúl: az árnyékolás pontosan ugyanaz marad, csak az változhat, milyen színnel nyomódik egy pont.',
         },
         {
           title: 'Ellenőrizd',

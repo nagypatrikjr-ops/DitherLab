@@ -26,7 +26,7 @@ export function ShirtStudio({ initialMode, onModeChange, ...props }: Props): JSX
     onModeChange(next);
   };
   const switcher = (
-    <div className="mode-switch" role="group">
+    <div className="mode-switch seg" role="group">
       <button className={`btn${mode === 'dtf' ? ' active' : ''}`} aria-pressed={mode === 'dtf'} onClick={() => choose('dtf')}>
         {t('studio.dtf')}
       </button>

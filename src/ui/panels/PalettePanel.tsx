@@ -17,6 +17,7 @@ import { bufferFromRgba } from '../../core/buffer';
 import type { DistanceMetric } from '../../core/types';
 import { useI18n, type MessageKey } from '../../i18n';
 import { saveFile } from '../save';
+import { Icon } from '../components/Icon';
 
 const METRICS: { value: DistanceMetric; key?: MessageKey; label?: string }[] = [
   { value: 'rgb', key: 'palette.metricRgb' },
@@ -164,22 +165,24 @@ export function PalettePanel(): JSX.Element {
                 className="mini"
                 title={t('common.moveUp')}
                 aria-label={t('common.moveUp')}
+                disabled={c.i === 0}
                 onClick={() => {
                   if (c.i === 0) return;
                   const next = colors.map((x) => x.hex);
                   [next[c.i - 1], next[c.i]] = [next[c.i], next[c.i - 1]];
                   writeColors(next);
                 }}
-              >↑</button>
+              ><Icon name="raise" size={11} /></button>
               <button
                 className="mini"
                 title={t('common.remove')}
                 aria-label={t('common.remove')}
+                disabled={colors.length <= 2}
                 onClick={() => {
                   if (colors.length <= 2) return;
                   writeColors(colors.filter((x) => x.i !== c.i).map((x) => x.hex));
                 }}
-              >✕</button>
+              ><Icon name="close" size={11} /></button>
             </div>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useI18n } from '../../i18n';
+import { Icon } from './Icon';
 
 interface Props {
   title: string;
@@ -62,7 +63,7 @@ export function Modal({ title, onClose, children, wide }: Props): JSX.Element {
         <div className="modal-head">
           <h2>{title}</h2>
           <button className="btn icon" onClick={onClose} aria-label={t('common.close')} title={t('common.closeEsc')}>
-            ✕
+            <Icon name="close" size={12} />
           </button>
         </div>
         <div className="modal-body">{children}</div>

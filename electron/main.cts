@@ -309,7 +309,7 @@ function createWindow(): void {
     minHeight: 620,
     show: false,
     backgroundColor: '#121213',
-    title: 'DitherLab',
+    title: `DitherLab ${app.getVersion()}`,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,
