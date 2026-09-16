@@ -10,6 +10,11 @@ on:
     branches: [master, main]
   workflow_dispatch:
 
+# A newer push makes an older run pointless; stop it rather than queue behind it.
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   desktop:
     name: ${{ matrix.os }}

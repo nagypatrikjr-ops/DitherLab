@@ -1318,7 +1318,10 @@ export function TransferStudio({
                       label={t('dtf.solid')}
                       value={s.knockout.solidPoint}
                       defaultValue={DEFAULT_TRANSFER.knockout.solidPoint}
-                      min={0.1}
+                      // The solid point has to sit above the tolerance. The scale
+                      // starts there, so the fader cannot be dragged to a value it
+                      // would silently jump back from.
+                      min={Math.min(0.99, Math.max(0.1, Math.round((s.knockout.tolerance + 0.01) * 100) / 100))}
                       max={1}
                       step={0.01}
                       onChange={(v) => patchKo({ solidPoint: Math.max(v, s.knockout.tolerance + 0.01) })}

@@ -698,15 +698,18 @@ async function screenFlow() {
     await check(G, 'save: every film, all films as ZIP, preview', async () => {
       const within = await app.call('markSection', '^Save films$', '.studio');
       const films = await app.ev(`[...document.querySelectorAll(${JSON.stringify(within)} + ' .add-grid .btn')].map(b => b.textContent.trim())`);
+      const screenSec = await app.call('markSection', '^Halftone screen$', '.studio');
+      const filmDpi = Number(await app.ev(`[...document.querySelector(${JSON.stringify(screenSec)}).querySelectorAll('select')].find(s => [...s.options].some(o => /DPI/.test(o.textContent)))?.value`));
+      const saveSec = await app.call('markSection', '^Save films$', '.studio');
       for (const f of films) {
-        const [file] = await app.expectSave(() => app.call('click', `^${esc(f)}$`, within), 300000);
+        const [file] = await app.expectSave(() => app.call('click', `^${esc(f)}$`, saveSec), 300000);
         const info = inspectPng(file);
-        if (info.dpi === null) throw new Error(`${path.basename(file)} has no resolution`);
+        if (info.dpi !== filmDpi) throw new Error(`${path.basename(file)} records ${info.dpi} DPI, the film is ${filmDpi} DPI`);
       }
-      const [zip] = await app.expectSave(() => app.call('click', '^All films \\(ZIP\\)$', within), 600000);
+      const [zip] = await app.expectSave(() => app.call('click', '^All films \\(ZIP\\)$', saveSec), 600000);
       const { names } = inspectZip(zip);
       if (names.filter((n) => n.endsWith('.png')).length !== films.length) throw new Error(`ZIP holds ${names}`);
-      const [preview] = await app.expectSave(() => app.call('click', '^Print preview PNG$', within), 120000);
+      const [preview] = await app.expectSave(() => app.call('click', '^Print preview PNG$', saveSec), 120000);
       inspectPng(preview);
       return `${films.length} films; ZIP: ${names.join(', ')}`;
     });

@@ -217,12 +217,19 @@ export function ScreenPrintStudio({
 
   const filmFileName = (index: number, name: string): string => `${fileName}-film-${index + 1}-${slug(core(name))}.png`;
 
+  /**
+   * Resolution to record in a saved film. Without it a RIP or an image editor
+   * assumes 72 DPI and prints the film at eight times its size; with it the
+   * file says exactly how many millimetres wide it is.
+   */
+  const dpiOf = (pixelWidth: number): number => (pixelWidth * 25.4) / Math.max(1, widthMm);
+
   const exportFilm = async (index: number, invert: boolean): Promise<void> => {
     setBusy(true);
     setStatus(t('sp.renderingFilm', { n: index + 1 }));
     try {
       const film = await client.film(printSourceId, job, index, invert);
-      const png = await encodePngRgba(film.image.data, film.image.width, film.image.height);
+      const png = await encodePngRgba(film.image.data, film.image.width, film.image.height, { dpi: dpiOf(film.image.width) });
       saveFile(png, filmFileName(index, film.name), 'image/png');
       setStatus(t('sp.filmSaved', { name: core(film.name), w: film.image.width, h: film.image.height }));
     } catch (e) {
@@ -241,7 +248,7 @@ export function ScreenPrintStudio({
       for (let i = 0; i < result.screens.length; i++) {
         setStatus(t('sp.renderingFilm', { n: i + 1 }));
         const film = await client.film(printSourceId, job, i, false);
-        const png = await encodePngRgba(film.image.data, film.image.width, film.image.height);
+        const png = await encodePngRgba(film.image.data, film.image.width, film.image.height, { dpi: dpiOf(film.image.width) });
         entries.push({ name: filmFileName(i, film.name), data: png });
       }
       saveFile(createZip(entries), `${fileName}-${t('sp.fileFilms')}.zip`, 'application/zip');
@@ -259,7 +266,7 @@ export function ScreenPrintStudio({
     try {
       const { promise } = client.separate(printSourceId, job);
       const r = await promise;
-      const png = await encodePngRgba(r.preview.data, r.preview.width, r.preview.height);
+      const png = await encodePngRgba(r.preview.data, r.preview.width, r.preview.height, { dpi: dpiOf(r.preview.width) });
       saveFile(png, `${fileName}-${t('sp.filePreview')}.png`, 'image/png');
       setStatus(t('sp.previewSaved', { w: r.preview.width, h: r.preview.height }));
     } catch (e) {

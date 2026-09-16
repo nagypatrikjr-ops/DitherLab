@@ -229,6 +229,8 @@ export const PAGE_HELPERS = String.raw`
     const banner = document.querySelector('.status-banner');
     if (!banner) return 'no banner';
     if (!/\b(ok|warn|error)\b/.test(banner.className)) return 'checking';
+    // The section titles carry "— tuning…" / "— running…" while those work.
+    if (all('.section-toggle').some((t) => /tuning…|running…|hangol…|fut…/i.test(text(t)))) return 'tuning';
     if (/calculating|számol/i.test(text(document.querySelector('.zp-view') || document.body))) return 'calculating';
     return true;
   }
