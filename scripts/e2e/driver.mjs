@@ -123,6 +123,10 @@ export async function launch({ exe, root, settings = {}, args = [], language = '
   await send('Runtime.enable');
   await send('Page.enable');
   await send('Inspector.enable');
+  // A test window usually sits behind other windows without keyboard focus,
+  // and Chromium then holds back focus and blur events — so a typed value is
+  // never committed. Emulate a focused page, as it is for a person using it.
+  await send('Emulation.setFocusEmulationEnabled', { enabled: true });
   await send('Page.addScriptToEvaluateOnNewDocument', { source: PAGE_HELPERS });
   await ev(PAGE_HELPERS);
 
