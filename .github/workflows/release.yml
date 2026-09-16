@@ -1,0 +1,57 @@
+name: Windows installer for a release
+
+# Builds DitherLab-<version>-Windows-Setup.exe on Windows (NSIS no longer runs on
+# a Mac without Rosetta), checks that it installs and that the installed app
+# starts, and attaches it to the given GitHub release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to attach the installer to (for example v1.3.1)
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  windows-installer:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run app:dist:win -- --publish never
+
+      - name: Install with Setup.exe and start the installed app
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          if ("v$version" -ne "${{ inputs.tag }}") { throw "package.json says $version, the tag is ${{ inputs.tag }}" }
+          $setup = Resolve-Path "release/$version/DitherLab-$version-Windows-Setup.exe"
+          Start-Process -Wait -FilePath $setup -ArgumentList '/S'
+          $exe = Get-ChildItem -Path "$env:LOCALAPPDATA\Programs" -Recurse -Filter DitherLab.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exe) { throw 'Setup.exe did not install DitherLab.exe' }
+          node scripts/e2e/run.mjs --exe "$($exe.FullName)" --out "${{ runner.temp }}/e2e" --pass release --only welcome,failure
+          if ($LASTEXITCODE -ne 0) { throw 'the installed app failed its start-up checks' }
+
+      - name: Attach to the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          gh release upload "${{ inputs.tag }}" "release/$version/DitherLab-$version-Windows-Setup.exe" --clobber
