@@ -36,6 +36,13 @@ interface DesktopSavedFile {
   readonly path: string;
 }
 
+/** A save that did not complete: the disk refused, the folder vanished, and so on. */
+interface DesktopSaveFailure {
+  readonly name: string;
+  /** Where it was going, when known. */
+  readonly folder: string;
+}
+
 interface DesktopSaveSettings {
   /** Show a Save dialog for every file instead of saving straight to `folder`. */
   readonly askWhereToSave: boolean;
@@ -49,6 +56,8 @@ interface DesktopBridge {
   /** Files opened from Finder/Explorer, the Dock icon or "Open with". */
   onOpenFile(listener: (file: DesktopOpenedFile) => void): () => void;
   onFileSaved(listener: (file: DesktopSavedFile) => void): () => void;
+  /** A save was interrupted. Never fires for a Save dialog the user cancelled. */
+  onSaveFailed(listener: (failure: DesktopSaveFailure) => void): () => void;
   /** Tell the shell the page can receive files. */
   ready(): void;
   /**

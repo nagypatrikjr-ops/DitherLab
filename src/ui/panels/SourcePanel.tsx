@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Section } from '../components/Section';
+import { NumberSlider } from '../components/NumberSlider';
 import { activePalette, createLayer, useStore, type DitherDocument } from '../../state/store';
 import { parsePreset, presetFromFragment, presetToFragment, serializePreset } from '../../io/preset';
 import { defaultParams, requireProcessor } from '../../core/dither/registry';
@@ -134,18 +135,16 @@ export function SourcePanel({ onOpen }: Props): JSX.Element {
           </select>
         </div>
         {doc.noiseMode === 'cycling' ? (
-          <div className="field">
-            <div className="label">
-              <span>{t('source.loop')}</span>
-              <span className="unit">{t('source.frames', { n: doc.cycleLength })}</span>
-            </div>
-            <input
-              type="range" min={2} max={120} value={doc.cycleLength}
-              aria-label={t('source.loop')}
-              onChange={(e) => setNoiseMode('cycling', Number(e.target.value))}
-              style={{ width: '100%', accentColor: 'var(--accent)' }}
-            />
-          </div>
+          <NumberSlider
+            label={t('source.loop')}
+            value={doc.cycleLength}
+            min={2}
+            max={120}
+            step={1}
+            unit={t('source.framesUnit')}
+            onChange={(v) => setNoiseMode('cycling', Math.round(v))}
+            onCommit={() => undefined}
+          />
         ) : null}
         <div className="hint">{t('source.seedHint')}</div>
       </Section>

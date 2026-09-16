@@ -467,4 +467,8 @@ export const CORE_EN: Readonly<Record<string, string>> = {
   'Claude válasza nem értelmezhető JSON.': 'Claude’s answer was not valid JSON.',
   'Claude nem adott szöveges választ.': 'Claude gave no text answer.',
   'Claude nem adott indoklást.': 'Claude gave no explanation.',
+  'A háttérszámítás váratlanul leállt.': 'The background calculation stopped unexpectedly.',
+  'A háttérszámítás eredménye nem olvasható.': 'The result of the background calculation could not be read.',
+  'Ehhez a mérethez nincs elég memória. Csökkentsd a felbontást (DPI) vagy a nyomat szélességét, és próbáld újra.':
+    'There is not enough memory for a file this size. Lower the resolution (DPI) or the print width, and try again.',
 };

@@ -430,11 +430,15 @@ export function App(): JSX.Element {
       const tr = i18nRef.current.t;
       toast('success', tr('toast.saved', { name: f.name }), { label: tr('toast.showInFolder'), run: () => desktop.showSavedFile(f.path) });
     });
+    const offFailed = desktop.onSaveFailed((f) => {
+      toast('error', i18nRef.current.t('toast.saveFailed', { name: f.name, folder: f.folder }));
+    });
     desktop.ready();
     return () => {
       offCommand();
       offOpen();
       offSaved();
+      offFailed();
     };
   }, [loadImage]);
 

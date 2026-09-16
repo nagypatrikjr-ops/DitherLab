@@ -70,6 +70,7 @@ export const appEn = {
   'welcome.guide': 'New here? Read the two-minute guide',
 
   'toast.saved': 'Saved: {name}',
+  'toast.saveFailed': 'Could not save {name} to {folder}. Check that the folder exists and the app may write to it (Settings → Saving files), then try again.',
   'toast.downloading': 'Downloading: {name}',
   'toast.showInFolder': 'Show in folder',
 
@@ -124,6 +125,7 @@ export const appEn = {
   'source.cycling': 'Cycling (GIF loop)',
   'source.loop': 'Loop length',
   'source.frames': '{n} frames',
+  'source.framesUnit': 'frames',
   'source.seedHint': 'The same seed with the same stack always gives exactly the same image.',
   'source.presets': 'Presets',
   'source.save': 'Save',
@@ -275,6 +277,7 @@ export const appHu: { readonly [K in keyof typeof appEn]: string } = {
   'welcome.guide': 'Új vagy itt? Olvasd el a kétperces útmutatót',
 
   'toast.saved': 'Mentve: {name}',
+  'toast.saveFailed': 'Nem sikerült menteni: {name} → {folder}. Nézd meg, hogy létezik-e a mappa, és írhat-e bele az app (Beállítások → Fájlok mentése), aztán próbáld újra.',
   'toast.downloading': 'Letöltés: {name}',
   'toast.showInFolder': 'Megmutatás a mappában',
 
@@ -329,6 +332,7 @@ export const appHu: { readonly [K in keyof typeof appEn]: string } = {
   'source.cycling': 'Ciklikus (GIF-hurok)',
   'source.loop': 'Hurok hossza',
   'source.frames': '{n} képkocka',
+  'source.framesUnit': 'képkocka',
   'source.seedHint': 'Ugyanaz a seed + ugyanaz a stack mindig ugyanazt a képet adja.',
   'source.presets': 'Előbeállítások',
   'source.save': 'Mentés',

@@ -25,6 +25,7 @@ const bridge: DesktopBridge = {
   onCommand: (listener) => listen<DesktopCommand>('menu-command', listener),
   onOpenFile: (listener) => listen<DesktopOpenedFile>('open-file', listener),
   onFileSaved: (listener) => listen<DesktopSavedFile>('file-saved', listener),
+  onSaveFailed: (listener) => listen<DesktopSaveFailure>('file-save-failed', listener),
   ready: () => {
     ipcRenderer.send('renderer-ready');
   },

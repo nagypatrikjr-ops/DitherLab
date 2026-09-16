@@ -389,7 +389,7 @@ export function fillHoleColors(
   w: number,
   h: number,
 ): void {
-  const pending: number[] = [];
+  let pending: number[] = [];
   for (let p = 0; p < ink.length; p++) if (ink[p] === 1 && before[p] === 0) pending.push(p);
   if (pending.length === 0) return;
   const has = before.slice();
@@ -414,8 +414,10 @@ export function fillHoleColors(
       cmap[p * 3 + 2] = cmap[src * 3 + 2];
       has[p] = 1;
     }
-    pending.length = 0;
-    pending.push(...next);
+    // Hand the array over rather than spreading it into push(): a large print
+    // at 600 DPI carries hundreds of thousands of pixels here, more than a
+    // function call can take as arguments ("Maximum call stack size exceeded").
+    pending = next;
   }
 }
 

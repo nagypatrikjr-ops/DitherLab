@@ -23,6 +23,7 @@ import { ZoomPanView, canvasFromImage, handleViewerKey, type ViewLayer, type Zoo
 import { isTyping, useCommandHandler } from './commands';
 import { saveFile } from './save';
 import { Icon } from './components/Icon';
+import { toast } from './toasts';
 
 interface Props {
   client: RenderClient;
@@ -94,6 +95,16 @@ export function ScreenPrintStudio({
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+  // The error line sits at the foot of a panel that is often scrolled away
+  // from it; a failure the user cannot see is indistinguishable from nothing
+  // happening, so every new error is also raised as a notification.
+  const lastToasted = useRef<string | null>(null);
+  useEffect(() => {
+    // A preview that fails the same way on every slider move is one problem,
+    // not one notification per move.
+    if (error !== null && error !== lastToasted.current) toast('error', error);
+    lastToasted.current = error ?? lastToasted.current;
+  }, [error]);
 
   const viewerRef = useRef<ZoomPanHandle>(null);
   const activeJob = useRef<number | null>(null);

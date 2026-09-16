@@ -419,7 +419,15 @@ function wireDownloads(): void {
       item.setSavePath(uniquePath(saveFolder(), name));
     }
     item.once('done', (_e, state) => {
-      if (state !== 'completed') return;
+      if (state === 'cancelled') return; // the user closed the Save dialog
+      if (state !== 'completed') {
+        // Used to return silently, so a save the disk refused (no permission,
+        // disk full, folder gone) looked exactly like a button that did nothing.
+        const target = item.getSavePath();
+        const failure: DesktopSaveFailure = { name, folder: target === '' ? saveFolder() : path.dirname(target) };
+        mainWindow?.webContents.send('file-save-failed', failure);
+        return;
+      }
       const saved = item.getSavePath();
       savedFiles.add(saved);
       const file: DesktopSavedFile = { name: path.basename(saved), path: saved };

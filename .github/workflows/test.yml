@@ -1,0 +1,112 @@
+name: Test on Windows and macOS
+
+# Builds the desktop app on each system, then drives it end to end three times
+# (every screen, every control, every saved file — see scripts/e2e/run.mjs).
+# On Windows the app under test is the one the Setup.exe installer actually
+# installs, and the uninstaller is checked afterwards.
+
+on:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  desktop:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: |
+          npx tsc --noEmit -p tsconfig.json
+          npx tsc --noEmit -p tsconfig.electron.json
+
+      - name: Unit tests
+        run: npx vitest run
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: npm run app:dist:win -- --publish never
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: npm run app:dist:mac -- --publish never
+
+      - name: Install with Setup.exe (silent)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $setup = Resolve-Path "release/$version/DitherLab-$version-Windows-Setup.exe"
+          Start-Process -Wait -FilePath $setup -ArgumentList '/S'
+          $exe = Get-ChildItem -Path "$env:LOCALAPPDATA\Programs" -Recurse -Filter DitherLab.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $exe) { throw 'Setup.exe did not install DitherLab.exe' }
+          Write-Host "installed: $($exe.FullName)"
+          "APP_EXE=$($exe.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          if (-not (Test-Path "$env:USERPROFILE\Desktop\DitherLab.lnk") -and -not (Test-Path "$env:PUBLIC\Desktop\DitherLab.lnk")) { Write-Warning 'no desktop shortcut found' }
+
+      - name: Locate the app (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "APP_EXE=$PWD/release/$version/mac-universal/DitherLab.app/Contents/MacOS/DitherLab" >> "$GITHUB_ENV"
+          codesign --verify --deep --strict "release/$version/mac-universal/DitherLab.app"
+
+      - name: End to end — pass 1
+        run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 1 --heavy
+
+      - name: End to end — pass 2
+        if: always()
+        run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 2 --heavy
+
+      - name: End to end — pass 3
+        if: always()
+        run: node scripts/e2e/run.mjs --exe "${{ env.APP_EXE }}" --out "${{ runner.temp }}/e2e" --pass 3 --heavy
+
+      - name: Uninstall (silent)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $dir = Split-Path "${{ env.APP_EXE }}"
+          $uninstaller = Get-ChildItem -Path $dir -Filter 'Uninstall*.exe' | Select-Object -First 1
+          if (-not $uninstaller) { throw 'no uninstaller next to the app' }
+          Start-Process -Wait -FilePath $uninstaller.FullName -ArgumentList '/S'
+          Start-Sleep -Seconds 5
+          if (Test-Path "${{ env.APP_EXE }}") { throw 'the uninstaller left DitherLab.exe behind' }
+          Write-Host 'uninstalled cleanly'
+
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-reports-${{ matrix.os }}
+          path: ${{ runner.temp }}/e2e/report-*.json
+          if-no-files-found: warn
+
+      - name: Keep the installers
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            release/*/DitherLab-*-Windows-Setup.exe
+            release/*/DitherLab-*-Windows-portable.zip
+            release/*/DitherLab-*-mac.dmg
+            release/*/DitherLab-*-mac.zip
+          if-no-files-found: warn

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Section } from '../components/Section';
+import { NumberSlider } from '../components/NumberSlider';
 import { activePalette, allPalettesFor, useStore } from '../../state/store';
 import { rgbToHex, hexToRgb } from '../../core/palette/builtin';
 import {
@@ -262,18 +263,15 @@ export function PalettePanel(): JSX.Element {
             <option value="octree">Octree</option>
           </select>
         </div>
-        <div className="field">
-          <div className="label">
-            <span>{t('palette.count')}</span>
-            <span className="unit">{colorCount}</span>
-          </div>
-          <input
-            type="range" min={2} max={256} value={colorCount}
-            aria-label={t('palette.count')}
-            onChange={(e) => setColorCount(Number(e.target.value))}
-            style={{ width: '100%', accentColor: 'var(--accent)' }}
-          />
-        </div>
+        <NumberSlider
+          label={t('palette.count')}
+          value={colorCount}
+          min={2}
+          max={256}
+          step={1}
+          onChange={(v) => setColorCount(Math.round(v))}
+          onCommit={() => undefined}
+        />
         <button className="btn primary" disabled={source === null} onClick={handleExtract}>
           {t('palette.extractBtn')}
         </button>

@@ -107,6 +107,21 @@ export class RenderClient {
     this.worker = new Worker(new URL('./render.worker.ts', import.meta.url), {
       type: 'module',
     });
+    // An error the worker did not catch carries no job id, so without this
+    // every waiting request would wait forever and the buttons that started
+    // them would stay disabled ("it just won't save").
+    const failAll = (message: string): void => {
+      const waiting = [...this.pending.values()];
+      this.pending.clear();
+      for (const entry of waiting) entry.reject(new Error(message));
+    };
+    this.worker.onerror = (event: ErrorEvent) => {
+      event.preventDefault();
+      failAll(event.message || 'A háttérszámítás váratlanul leállt.');
+    };
+    this.worker.onmessageerror = () => {
+      failAll('A háttérszámítás eredménye nem olvasható.');
+    };
     this.worker.onmessage = (event: MessageEvent<WorkerResponse>) => {
       const msg = event.data;
       if (msg.type === 'ready') return;

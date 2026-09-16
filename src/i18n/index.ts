@@ -102,6 +102,19 @@ export interface I18n {
 
 const cache: Partial<Record<Language, I18n>> = {};
 
+/** What the user is told when the browser engine runs out of room. */
+export const OUT_OF_MEMORY = 'Ehhez a mérethez nincs elég memória. Csökkentsd a felbontást (DPI) vagy a nyomat szélességét, és próbáld újra.';
+
+/**
+ * The engine's own failures are written for people; a JavaScript engine's are
+ * not ("Array buffer allocation failed"). The ones that mean "too big for the
+ * memory this machine has" all get the same plain explanation.
+ */
+function errorText(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return /allocation failed|invalid array length|invalid typed array length|out of memory/i.test(message) ? OUT_OF_MEMORY : message;
+}
+
 export function i18nFor(lang: Language): I18n {
   const hit = cache[lang];
   if (hit) return hit;
@@ -109,7 +122,7 @@ export function i18nFor(lang: Language): I18n {
     lang,
     t: (key, vars) => translate(lang, key, vars),
     core: (hu) => coreText(lang, hu),
-    err: (error) => coreText(lang, error instanceof Error ? error.message : String(error)),
+    err: (error) => coreText(lang, errorText(error)),
     num: (value, digits) => formatNumber(value, lang, digits),
   };
   cache[lang] = made;
