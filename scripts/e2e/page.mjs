@@ -130,7 +130,6 @@ export const PAGE_HELPERS = String.raw`
     const sec = secs[1];
     if (!sec) return null;
     const tag = 'l' + Math.random().toString(36).slice(2, 8);
-    all('[data-e2e]').forEach((x) => x.removeAttribute('data-e2e'));
     sec.setAttribute('data-e2e', tag);
     return '[data-e2e="' + tag + '"]';
   }
@@ -417,7 +416,6 @@ export const PAGE_HELPERS = String.raw`
     const toggle = sec.querySelector('.section-toggle');
     if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
     const tag = 's' + Math.random().toString(36).slice(2, 8);
-    all('[data-e2e]').forEach((x) => x.removeAttribute('data-e2e'));
     sec.setAttribute('data-e2e', tag);
     return '[data-e2e="' + tag + '"]';
   }

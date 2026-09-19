@@ -368,14 +368,14 @@ export function autoTune(
   if (before.milky > MILKY_LIMIT || metrics.milky < before.milky - 0.01) {
     notes.push(
       `Tejes kockázat: ${pct(before.milky)} → ${pct(metrics.milky)} a nyomott felületből. ` +
-        'A pólóhoz közeli sötét tónusokat most a póló adja a pontok között, nem sötét festék fehér alapon.',
+        'Az alaphoz közeli sötét tónusokat most maga az anyag adja a pontok között, nem sötét festék fehér alapon.',
     );
   } else {
-    notes.push(`Tejes kockázat: ${pct(metrics.milky)} — a sötét részeket már eddig is a póló adta.`);
+    notes.push(`Tejes kockázat: ${pct(metrics.milky)} — a sötét részeket már eddig is az anyag adta.`);
   }
   if (metrics.milky > MILKY_LIMIT) {
     notes.push(
-      `A ${pct(MILKY_LIMIT)}-os cél ezen a képen nem érhető el teljesen: sok a pólóhoz közeli, de tömörnek szánt sötét rész.`,
+      `A ${pct(MILKY_LIMIT)}-os cél ezen a képen nem érhető el teljesen: sok az alaphoz közeli, de tömörnek szánt sötét rész.`,
     );
   }
   const k0 = base.knockout;
@@ -388,7 +388,7 @@ export function autoTune(
   if (Math.abs(k1.tolerance - k0.tolerance) > 1e-6) {
     notes.push(
       `Tolerancia ${pct(k0.tolerance)} → ${pct(k1.tolerance)}` +
-        (k1.tolerance > k0.tolerance ? ' — a halvány szemcse nem szórja tele pöttyökkel a pólót.' : ' — több halvány részlet marad meg.'),
+        (k1.tolerance > k0.tolerance ? ' — a halvány szemcse nem szórja tele pöttyökkel az anyagot.' : ' — több halvány részlet marad meg.'),
     );
   }
   if (Math.abs(k1.density - k0.density) > 1e-6) {

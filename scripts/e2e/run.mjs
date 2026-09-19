@@ -468,7 +468,7 @@ async function dtfFlow() {
     await check(G, 'opens from the toolbar and settles', async () => {
       await app.until(async () => (await app.call('statusText')).includes('poster-test.png'), 40000, 'the image');
       await mainIdle(app);
-      await app.call('click', '^T-shirt print \\(DTF\\)');
+      await app.call('click', '^Transfer print \\(DTF\\)');
       await dtfIdle(app);
       await canvasHasImage(app, '.zp-canvas');
       return (await app.call('readout')).join(' · ');
@@ -477,7 +477,7 @@ async function dtfFlow() {
       await app.call('click', '^Advanced$', '.studio-bar');
       await dtfIdle(app);
       const titles = await app.call('sectionTitles', '.studio');
-      for (const want of ['Black knockout', 'Halftone screen', 'RIP & white underbase', 'Ink colours', 'Check', 'Pressing', 'Save for printing']) {
+      for (const want of ['Black knockout', 'Halftone screen', 'RIP & white underbase', 'Ink colours', 'Check', 'Save for printing', 'Garment']) {
         if (!titles.some((t) => t.toLowerCase().startsWith(want.toLowerCase()))) throw new Error(`missing section ${want}`);
       }
       return titles.join(' | ');
@@ -510,7 +510,7 @@ async function dtfFlow() {
     });
 
     const skip = /^(File resolution|Which image)$/;
-    for (const title of ['^Shirt$', '^Placement & size$', '^Black knockout$', '^Improve image$', '^Edge fade$', '^Halftone screen$', '^RIP & white underbase$', '^Automatic settings']) {
+    for (const title of ['^Background$', '^Print size$', '^Image$', '^Black knockout$', '^Edge fade$', '^Halftone screen$', '^RIP & white underbase$', '^Automatic settings']) {
       const within = await app.call('markSection', title, '.studio');
       const name = title.replace(/[\^$\\]/g, '');
       await sweep(app, within, dtfIdle, skip, G, name);
@@ -533,7 +533,7 @@ async function dtfFlow() {
       return looks.join(', ');
     });
     await check(G, 'file resolution 360 DPI and back', async () => {
-      const within = await app.call('markSection', '^Placement & size$', '.studio');
+      const within = await app.call('markSection', '^Print size$', '.studio');
       await app.call('choose', '^File resolution$', '360', within);
       await dtfIdle(app);
       const r = (await app.call('readout')).join(' ');
@@ -541,12 +541,29 @@ async function dtfFlow() {
       await app.call('choose', '^File resolution$', '300', within);
       await dtfIdle(app);
     });
-    await check(G, 'custom shirt colour', async () => {
-      const within = await app.call('markSection', '^Shirt$', '.studio');
-      await app.call('pickColor', '^Color$', '#203040', 0, within);
+    await check(G, 'a custom background colour', async () => {
+      const within = await app.call('markSection', '^Background$', '.studio');
+      await app.call('pickColor', 'Color you print on', '#203040', 0, within);
       await dtfIdle(app);
-      await app.call('choose', '^Color$', 'black', within);
+      await app.call('choose', '^Color you print on$', 'black', within);
       await dtfIdle(app);
+    });
+
+    await check(G, 'the garment extras are off by default and can be switched on', async () => {
+      if ((await app.call('viewTabs')).some((t) => /garment/i.test(t))) throw new Error('the garment view is there without asking');
+      const hasPressing = async () => (await app.call('sectionTitles', '.studio')).some((x) => /^pressing/i.test(x));
+      if (await hasPressing()) throw new Error('the pressing table is there without asking');
+      const within = await app.call('markSection', '^Garment', '.studio');
+      await app.call('checkbox', 'garment preview', true, within);
+      await dtfIdle(app);
+      if (!(await app.call('viewTabs')).some((t) => /garment/i.test(t))) throw new Error('no garment view after switching it on');
+      if (!(await hasPressing())) throw new Error('no pressing table after switching it on');
+      const save = await app.call('markSection', '^Save for printing$', '.studio');
+      const [mock] = await app.expectSave(() => app.call('click', '^Mockup PNG$', save));
+      inspectPng(mock);
+      await app.call('checkbox', 'garment preview', false, within);
+      await dtfIdle(app);
+      if ((await app.call('viewTabs')).some((t) => /garment/i.test(t))) throw new Error('the garment view stayed after switching it off');
     });
     await check(G, 'automatic settings: Tune again, candidates', async () => {
       const within = await app.call('markSection', '^Automatic settings', '.studio');
@@ -608,10 +625,8 @@ async function dtfFlow() {
       const [file] = await app.expectSave(() => app.call('click', '^TIFF', within), 300000);
       return JSON.stringify(inspectTiff(file));
     });
-    await check(G, 'save: mockup, job sheet', async () => {
+    await check(G, 'save: job sheet', async () => {
       const within = await app.call('markSection', '^Save for printing$', '.studio');
-      const [mock] = await app.expectSave(() => app.call('click', '^Mockup PNG$', within));
-      inspectPng(mock);
       const [sheet] = await app.expectSave(() => app.call('click', '^Job sheet$', within));
       const txt = readText(sheet);
       if (!/DTF JOB SHEET/.test(txt) || !/300 DPI/.test(txt)) throw new Error('the job sheet is missing its content');
@@ -652,7 +667,7 @@ async function screenFlow() {
     await check(G, 'opens and makes films', async () => {
       await app.until(async () => (await app.call('statusText')).includes('poster-test.png'), 40000, 'the image');
       await mainIdle(app);
-      await app.call('click', '^T-shirt print \\(DTF\\)');
+      await app.call('click', '^Transfer print \\(DTF\\)');
       await dtfIdle(app);
       await app.call('click', '^Screen-print films$', '.studio-bar');
       await screenIdle(app);
@@ -757,9 +772,9 @@ async function heavyFlow() {
     await check(G, '40.6 cm at 600 DPI (9591 × 9591 px) saves', async () => {
       await app.until(async () => (await app.call('statusText')).includes('poster-test.png'), 40000, 'the image');
       await mainIdle(app);
-      await app.call('click', '^T-shirt print \\(DTF\\)');
+      await app.call('click', '^Transfer print \\(DTF\\)');
       await dtfIdle(app);
-      const place = await app.call('markSection', '^Placement & size$', '.studio');
+      const place = await app.call('markSection', '^Print size$', '.studio');
       await app.call('setNumber', '^Print width$', 406, place);
       await app.call('choose', '^File resolution$', '600', place);
       await dtfIdle(app, 900000);

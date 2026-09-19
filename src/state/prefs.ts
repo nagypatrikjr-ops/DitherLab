@@ -10,8 +10,14 @@ export interface Prefs {
   uiScale: number;
   /** DTF studio: show only the essential controls. */
   dtfSimple: boolean;
-  /** DTF studio: start from the last shirt, size and placement. */
+  /** DTF studio: start from the last material colour, size and placement. */
   rememberDtf: boolean;
+  /**
+   * DTF studio: show the garment extras — the T-shirt mockup, the usual print
+   * placements and the heat-press table. Off by default: the print file is the
+   * same whatever it is pressed onto, so this is a preview, not a setting.
+   */
+  dtfGarment: boolean;
   /** Keep a list of recently opened images on this computer. */
   keepRecent: boolean;
   /** What the mouse wheel and two-finger scrolling do in the image viewers. */
@@ -19,7 +25,7 @@ export interface Prefs {
 }
 
 const KEY = 'ditherlab.prefs';
-const DEFAULTS: Prefs = { uiScale: 1, dtfSimple: true, rememberDtf: true, keepRecent: true, wheelMode: 'zoom' };
+const DEFAULTS: Prefs = { uiScale: 1, dtfSimple: true, rememberDtf: true, dtfGarment: false, keepRecent: true, wheelMode: 'zoom' };
 
 export const UI_SCALES: readonly number[] = [0.85, 1, 1.15, 1.3];
 
@@ -32,6 +38,7 @@ function load(): Prefs {
       uiScale: typeof r.uiScale === 'number' && r.uiScale >= 0.8 && r.uiScale <= 1.4 ? r.uiScale : DEFAULTS.uiScale,
       dtfSimple: typeof r.dtfSimple === 'boolean' ? r.dtfSimple : DEFAULTS.dtfSimple,
       rememberDtf: typeof r.rememberDtf === 'boolean' ? r.rememberDtf : DEFAULTS.rememberDtf,
+      dtfGarment: typeof r.dtfGarment === 'boolean' ? r.dtfGarment : DEFAULTS.dtfGarment,
       keepRecent: typeof r.keepRecent === 'boolean' ? r.keepRecent : DEFAULTS.keepRecent,
       wheelMode: r.wheelMode === 'pan' || r.wheelMode === 'zoom' ? r.wheelMode : DEFAULTS.wheelMode,
     };
@@ -48,9 +55,9 @@ export const usePrefs = create<PrefsState>()((set, get) => ({
   ...load(),
   setPref: (key, value) => {
     set({ [key]: value } as Pick<Prefs, typeof key>);
-    const { uiScale, dtfSimple, rememberDtf, keepRecent, wheelMode } = get();
+    const { uiScale, dtfSimple, rememberDtf, dtfGarment, keepRecent, wheelMode } = get();
     try {
-      localStorage.setItem(KEY, JSON.stringify({ uiScale, dtfSimple, rememberDtf, keepRecent, wheelMode }));
+      localStorage.setItem(KEY, JSON.stringify({ uiScale, dtfSimple, rememberDtf, dtfGarment, keepRecent, wheelMode }));
     } catch {
       /* storage unavailable */
     }

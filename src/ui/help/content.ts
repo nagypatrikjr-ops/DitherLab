@@ -30,13 +30,13 @@ export function helpContent(lang: Language, mod: (key: string) => string, versio
 function en(mod: (key: string) => string, version: string): HelpContent {
   return {
     start: {
-      intro: 'DitherLab turns an image into dithered art or into a print-ready T-shirt file. It works offline — nothing is uploaded.',
+      intro: 'DitherLab turns an image into dithered art or into a print-ready transfer file. It works offline — nothing is uploaded.',
       steps: [
         { title: 'Open an image', text: `Drag it into the window, click Open, or paste it with ${mod('V')}. Photos, posters and logos all work.` },
         { title: 'Pick a look', text: 'Try a Quick start on the left. Each one adds a few layers on the right, which you can change, reorder or switch off.' },
         { title: 'Compare', text: 'Hold Space (or the Before button) to see the original, or turn on Compare for a split view with a draggable line.' },
         { title: 'Export', text: 'Save PNG, JPG, WEBP or TIFF on the right, or SVG / PDF vectors for cutting plotters and screen printing.' },
-        { title: 'Print it on a shirt', text: 'Click “T-shirt print (DTF) →”. The studio prepares a print-ready heat-transfer file — see the T-shirt printing guide.' },
+        { title: 'Print it on fabric', text: 'Click “Transfer print (DTF) →”. The studio prepares a print-ready heat-transfer file — see the transfer printing guide.' },
       ],
       tipsTitle: 'Good to know',
       tips: [
@@ -49,18 +49,22 @@ function en(mod: (key: string) => string, version: string): HelpContent {
     },
     dtf: {
       intro:
-        'DTF (direct-to-film) is a heat-transfer print: the design is printed onto film with a white layer behind it, dusted with adhesive powder and pressed onto the shirt. DitherLab prepares the file so it looks right on the shirt color you choose — especially on black.',
+        'DTF (direct-to-film) is a heat-transfer print: the design is printed onto film with a white layer behind it, dusted with adhesive powder and pressed onto the material — a T-shirt, a hoodie, a tote bag, anything that takes heat. DitherLab prepares the file so it looks right on the colour you are printing onto, black above all.',
       steps: [
         { title: 'Start with a good image', text: 'The bigger the better: about 3300 px wide for a 28 cm (11") print. The studio shows the resulting DPI under Source.' },
-        { title: 'Open the studio', text: 'Click “T-shirt print (DTF) →”. Choose whether to print the original image or your dithered version.' },
+        { title: 'Open the studio', text: 'Click “Transfer print (DTF) →”. Choose whether to print the original image or your dithered version.' },
         {
-          title: 'Choose the shirt',
-          text: 'Pick the shirt color, size and fabric. On a black shirt the black parts of the design are not printed — the shirt shows through instead. This is called black knockout.',
+          title: 'Set the background colour',
+          text: 'Under “Background”, pick the colour of whatever this is going onto. On a black one the black parts of the design are not printed at all — the material shows through instead. This is called black knockout, and it is what keeps the print soft and free of grey patches.',
         },
-        { title: 'Choose placement and size', text: 'Full front, left chest, full back… The width follows common print-shop guidelines; change it if you like.' },
+        { title: 'Set the print size', text: 'The width in millimetres and the file resolution. Everything else follows from those two: the pixel size is shown underneath, and the readout under the preview repeats it.' },
+        {
+          title: 'Shape the image',
+          text: 'Contrast, saturation and sharpening under “Image” decide how the artwork itself comes out. In Advanced mode you also get the knockout, the halftone screen and the RIP settings.',
+        },
         {
           title: 'Let the automatic settings work',
-          text: 'For every image the program tunes the knockout so dark tones come from the shirt, not from grey ink printed on white. Pick “More solid”, “Balanced” or “More open” to taste.',
+          text: 'For every image the program tunes the knockout so dark tones come from the material, not from grey ink printed on white. Pick “More solid”, “Balanced” or “More open” to taste.',
         },
         {
           title: 'Name the inks, if the design has only a few',
@@ -72,12 +76,12 @@ function en(mod: (key: string) => string, version: string): HelpContent {
         },
         {
           title: 'Save',
-          text: '“Print-ready PNG” is the file for the print shop. “Print-shop package” puts that PNG, a mockup and a job sheet with the size and pressing instructions into one ZIP.',
+          text: '“Print-ready PNG” is the file for the print shop. “Print-shop package” puts that PNG and a job sheet with the size and the settings into one ZIP. Switch on “Garment (optional)” at the bottom of the left panel and you also get a T-shirt mockup, the usual print placements and the heat-press table — none of which change the file itself.',
         },
       ],
       milkyTitle: 'Why prints look milky — and how DitherLab avoids it',
       milky:
-        'Everything that gets printed has white ink underneath. A dark grey or dark red printed over white comes out lighter and chalky: “milky”. On a black shirt it is better to let the shirt be the dark color. DitherLab turns dark tones into small dots with the shirt showing between them, so the eye sees the right dark tone and the print stays soft and breathable.',
+        'Everything that gets printed has white ink underneath. A dark grey or dark red printed over white comes out lighter and chalky: “milky”. On a black material it is better to let the material itself be the dark colour. DitherLab turns dark tones into small dots with the material showing between them, so the eye sees the right dark tone and the print stays soft and breathable.',
       shopTitle: 'What to tell the print shop',
       shop: [
         'Send the PNG as it is: transparent background, 300 DPI, not mirrored — the shop mirrors it.',
@@ -88,7 +92,7 @@ function en(mod: (key: string) => string, version: string): HelpContent {
       pressTitle: 'Pressing it yourself',
       press: [
         'Use the temperature, time and pressure the studio shows for your fabric. If the film maker’s data sheet says otherwise, the data sheet wins.',
-        'Pre-press the shirt for a few seconds to remove moisture and wrinkles.',
+        'Pre-press the garment for a few seconds to remove moisture and wrinkles.',
         'Peel hot or cold as the film requires, then press once more with parchment paper for durability.',
         'Wait 24 hours before the first wash. Wash inside out, cold, and skip the tumble dryer.',
       ],
@@ -98,7 +102,7 @@ function en(mod: (key: string) => string, version: string): HelpContent {
       { title: 'White underbase', text: 'The white ink printed under the colors so they stay bright on dark fabric.' },
       {
         title: 'Black knockout',
-        text: 'Leaving out the parts of the design that match the shirt color, so the shirt itself shows there. The print gets softer and lighter, and dark areas cannot turn milky.',
+        text: 'Leaving out the parts of the design that match the colour underneath, so the material itself shows there. The print gets softer and lighter, and dark areas cannot turn milky.',
       },
       { title: 'Milky print', text: 'Dark ink printed over white underbase looks chalky and grey. DitherLab measures this and keeps it below 5% of the print.' },
       { title: 'Halftone (dots)', text: 'Building tones out of small dots of one ink. From a normal distance the eye blends them into a smooth tone.' },
@@ -120,9 +124,9 @@ function en(mod: (key: string) => string, version: string): HelpContent {
       { title: 'Transparent PNG', text: 'An image with see-through areas. On a transfer, everything transparent stays unprinted.' },
     ],
     about: [
-      `DitherLab ${version} — dithering, halftones and print-ready T-shirt files.`,
-      'Privacy: everything runs on this computer. Images, settings and the recent-images list are stored only here. The optional Claude review in the T-shirt studio sends a reduced preview to Anthropic, and only after you add your own API key and agree to it.',
-      'The print guidance in the T-shirt studio (resolution, dot sizes, pressing) comes from published print-shop and manufacturer figures. Your film and press maker’s instructions always come first.',
+      `DitherLab ${version} — dithering, halftones and print-ready transfer files.`,
+      'Privacy: everything runs on this computer. Images, settings and the recent-images list are stored only here. The optional Claude review in the print studio sends a reduced preview to Anthropic, and only after you add your own API key and agree to it.',
+      'The print guidance in the studio (resolution, dot sizes, pressing) comes from published print-shop and manufacturer figures. Your film and press maker’s instructions always come first.',
       'In the desktop app, exported files go to your Downloads folder unless you choose another folder in Settings.',
     ],
   };
@@ -131,13 +135,13 @@ function en(mod: (key: string) => string, version: string): HelpContent {
 function hu(mod: (key: string) => string, version: string): HelpContent {
   return {
     start: {
-      intro: 'A DitherLab egy képből dithered grafikát vagy nyomdakész pólófájlt készít. Internet nélkül működik — semmit nem tölt fel.',
+      intro: 'A DitherLab egy képből dithered grafikát vagy nyomdakész transzferfájlt készít. Internet nélkül működik — semmit nem tölt fel.',
       steps: [
         { title: 'Nyiss meg egy képet', text: `Húzd be az ablakba, kattints a Megnyitásra, vagy illeszd be: ${mod('V')}. Fotó, plakát, logó — mind jó.` },
         { title: 'Válassz stílust', text: 'Próbálj ki egy Gyorsindítást balra. Mindegyik néhány réteget tesz jobbra, amit módosíthatsz, átrendezhetsz vagy kikapcsolhatsz.' },
         { title: 'Hasonlítsd össze', text: 'A szóközt (vagy az Előtte gombot) nyomva tartva az eredeti látszik; az Összehasonlítás osztott nézetet ad húzható vonallal.' },
         { title: 'Exportálj', text: 'Jobbra menthetsz PNG-t, JPG-t, WEBP-et vagy TIFF-et, vágóplotterhez és szitához pedig SVG / PDF vektort.' },
-        { title: 'Nyomtasd pólóra', text: 'Kattints a „Pólóra (DTF) →” gombra. A stúdió nyomdakész, rávasalós transzfer fájlt készít — lásd a pólónyomtatási útmutatót.' },
+        { title: 'Nyomtasd anyagra', text: 'Kattints a „Transzfer nyomat (DTF) →” gombra. A stúdió nyomdakész, rávasalós transzfer fájlt készít — lásd a transzfernyomtatási útmutatót.' },
       ],
       tipsTitle: 'Jó tudni',
       tips: [
@@ -150,18 +154,22 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
     },
     dtf: {
       intro:
-        'A DTF (direct-to-film) rávasalós nyomat: a mintát fehér réteggel együtt fóliára nyomtatják, ragasztóporral beszórják, és a pólóra préselik. A DitherLab úgy készíti el a fájlt, hogy a választott pólószínen — főleg feketén — jól nézzen ki.',
+        'A DTF (direct-to-film) rávasalós nyomat: a mintát fehér réteggel együtt fóliára nyomtatják, ragasztóporral beszórják, és rápréselik az anyagra — pólóra, pulóverre, vászontáskára, bármire, ami bírja a hőt. A DitherLab úgy készíti el a fájlt, hogy azon a színen nézzen ki jól, amire nyomtatod; leginkább feketén.',
       steps: [
         { title: 'Jó képből indulj', text: 'Minél nagyobb, annál jobb: 28 cm-es (11") nyomathoz kb. 3300 px széles kép. A stúdió a Forrás alatt mutatja a kapott DPI-t.' },
-        { title: 'Nyisd meg a stúdiót', text: 'Kattints a „Pólóra (DTF) →” gombra. Kiválaszthatod, hogy az eredeti képet vagy a dithered változatot nyomtasd.' },
+        { title: 'Nyisd meg a stúdiót', text: 'Kattints a „Transzfer nyomat (DTF) →” gombra. Kiválaszthatod, hogy az eredeti képet vagy a dithered változatot nyomtasd.' },
         {
-          title: 'Válaszd ki a pólót',
-          text: 'Add meg a póló színét, méretét és anyagát. Fekete pólón a minta fekete részei nem nyomódnak — ott a póló látszik. Ezt hívják fekete kiütésnek.',
+          title: 'Állítsd be az alap színét',
+          text: 'Az „Alap” alatt add meg annak a színét, amire a nyomat kerül. Feketén a minta fekete részei egyáltalán nem nyomódnak — ott maga az anyag látszik. Ezt hívják fekete kiütésnek, és ettől marad puha és folt nélküli a nyomat.',
         },
-        { title: 'Elhelyezés és méret', text: 'Elöl teljes, bal mell, hát… A szélesség a nyomdák szokásos ajánlását követi; nyugodtan módosítsd.' },
+        { title: 'Add meg a nyomat méretét', text: 'A szélesség milliméterben és a fájl felbontása. Minden más ebből jön: a képpontméret alatta látszik, és az előnézet alatti számsor is mutatja.' },
+        {
+          title: 'Formáld a képet',
+          text: 'A „Kép” alatti kontraszt, telítettség és élesítés dönti el, hogyan jön ki maga a grafika. Haladó módban a kiütés, a raszter és a RIP-beállítások is előjönnek.',
+        },
         {
           title: 'Hagyd dolgozni az automatikus beállítást',
-          text: 'Minden képnél úgy hangolja a kiütést, hogy a sötét tónusokat a póló adja, ne fehér alapra nyomott szürke festék. Ízlés szerint válaszd a „Tömörebb”, „Kiegyensúlyozott” vagy „Légáteresztőbb” irányt.',
+          text: 'Minden képnél úgy hangolja a kiütést, hogy a sötét tónusokat az anyag adja, ne fehér alapra nyomott szürke festék. Ízlés szerint válaszd a „Tömörebb”, „Kiegyensúlyozott” vagy „Légáteresztőbb” irányt.',
         },
         {
           title: 'Add meg a festékszíneket, ha kevés színnel dolgozol',
@@ -173,12 +181,12 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
         },
         {
           title: 'Mentsd el',
-          text: 'A „Nyomdakész PNG” a nyomdának szóló fájl. A „Nyomdai csomag” egy ZIP-be teszi a PNG-t, egy makettet és a munkalapot a mérettel és a préselési adatokkal.',
+          text: 'A „Nyomdakész PNG” a nyomdának szóló fájl. A „Nyomdai csomag” egy ZIP-be teszi a PNG-t és a munkalapot a mérettel és a beállításokkal. Ha a bal panel alján bekapcsolod a „Ruhadarab (nem kötelező)” részt, kapsz pólómakettet, a szokásos elhelyezéseket és a préselési táblázatot is — ezek egyike sem változtat magán a fájlon.',
         },
       ],
       milkyTitle: 'Miért lesz tejes a nyomat — és hogyan kerüli el a DitherLab',
       milky:
-        'Minden nyomtatott rész alá fehér festék kerül. A fehérre nyomott sötétszürke vagy sötétvörös világosabb, krétás lesz: „tejes”. Fekete pólón jobb, ha a sötét színt maga a póló adja. A DitherLab a sötét tónusokat apró pontokra bontja, köztük a póló látszik, így a szem a helyes sötét tónust látja, a nyomat pedig puha és légáteresztő marad.',
+        'Minden nyomtatott rész alá fehér festék kerül. A fehérre nyomott sötétszürke vagy sötétvörös világosabb, krétás lesz: „tejes”. Fekete anyagon jobb, ha a sötét színt maga az anyag adja. A DitherLab a sötét tónusokat apró pontokra bontja, köztük az anyag látszik, így a szem a helyes sötét tónust látja, a nyomat pedig puha és légáteresztő marad.',
       shopTitle: 'Mit mondj a nyomdának',
       shop: [
         'Küldd a PNG-t úgy, ahogy van: átlátszó háttér, 300 DPI, nem tükrözve — a nyomda tükröz.',
@@ -189,7 +197,7 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
       pressTitle: 'Ha magad préseled',
       press: [
         'Az anyaghoz a stúdióban látható hőfokot, időt és nyomást használd. Ha a fólia adatlapja mást ír, az adatlap az irányadó.',
-        'Préseld elő a pólót néhány másodpercig, hogy kimenjen belőle a nedvesség és a gyűrődés.',
+        'Préseld elő a ruhát néhány másodpercig, hogy kimenjen belőle a nedvesség és a gyűrődés.',
         'A fólia szerint meleg vagy hideg állapotban húzd le, aztán sütőpapírral préseld át még egyszer a tartósságért.',
         'Az első mosás előtt várj 24 órát. Kifordítva, hidegen mosd, szárítógép nélkül.',
       ],
@@ -199,7 +207,7 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
       { title: 'Fehér aláfestés', text: 'A színek alá nyomott fehér festék, hogy sötét anyagon is élénkek maradjanak.' },
       {
         title: 'Fekete kiütés',
-        text: 'A minta pólószínű részeit nem nyomtatjuk, ott maga a póló látszik. A nyomat puhább és könnyebb lesz, a sötét részek pedig nem lehetnek tejesek.',
+        text: 'A minta alapszínű részeit nem nyomtatjuk, ott maga az anyag látszik. A nyomat puhább és könnyebb lesz, a sötét részek pedig nem lehetnek tejesek.',
       },
       { title: 'Tejes nyomat', text: 'A fehér alapra nyomott sötét festék krétás, szürkés lesz. A DitherLab ezt méri, és a nyomat 5%-a alatt tartja.' },
       { title: 'Raszter (pontok)', text: 'A tónusokat egyetlen festék apró pontjaiból építjük fel. Normál távolságból a szem egyenletes tónussá olvasztja őket.' },
@@ -221,9 +229,9 @@ function hu(mod: (key: string) => string, version: string): HelpContent {
       { title: 'Átlátszó PNG', text: 'Kép átlátszó részekkel. Transzferen minden átlátszó rész nyomtatatlan marad.' },
     ],
     about: [
-      `DitherLab ${version} — dithering, raszterezés és nyomdakész pólófájlok.`,
-      'Adatvédelem: minden ezen a gépen fut. A képek, a beállítások és a legutóbbi képek listája csak itt tárolódik. A pólóstúdió opcionális Claude ellenőrzése egy kicsinyített előnézetet küld az Anthropicnak, de csak ha megadod a saját API-kulcsodat és hozzájárulsz.',
-      'A pólóstúdió nyomtatási adatai (felbontás, pontméret, préselés) publikált nyomdai és gyártói értékekből származnak. A fóliád és a présed gyártójának utasítása mindig elsőbbséget élvez.',
+      `DitherLab ${version} — dithering, raszterezés és nyomdakész transzferfájlok.`,
+      'Adatvédelem: minden ezen a gépen fut. A képek, a beállítások és a legutóbbi képek listája csak itt tárolódik. A nyomtatási stúdió opcionális Claude ellenőrzése egy kicsinyített előnézetet küld az Anthropicnak, de csak ha megadod a saját API-kulcsodat és hozzájárulsz.',
+      'A stúdió nyomtatási adatai (felbontás, pontméret, préselés) publikált nyomdai és gyártói értékekből származnak. A fóliád és a présed gyártójának utasítása mindig elsőbbséget élvez.',
       'Az asztali appban az exportált fájlok a Letöltések mappába kerülnek, hacsak a Beállításokban másik mappát nem választasz.',
     ],
   };

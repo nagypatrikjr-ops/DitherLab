@@ -211,7 +211,7 @@ export function analyzeTransfer(
           id: 'white',
           level: 'warn',
           title: `${unsupported.count} elem alól eltűnik a fehér`,
-          detail: `Összesen ${fmt(unsupportedAreaMm2, 2)} mm². A choke teljesen elviszi alóluk az aláfestést, sötét pólón nem látszanak. Kisebb choke-ot kérj a RIP-ben, vagy növeld a legkisebb pontot.`,
+          detail: `Összesen ${fmt(unsupportedAreaMm2, 2)} mm². A choke teljesen elviszi alóluk az aláfestést, sötét anyagon nem látszanak. Kisebb choke-ot kérj a RIP-ben, vagy növeld a legkisebb pontot.`,
         },
   );
 
@@ -266,7 +266,7 @@ export function analyzeTransfer(
       checks.push({
         id: 'knockout',
         level: gl < 0.3 ? 'warn' : 'info',
-        title: 'A póló színével egyező részeket is nyomtatod',
+        title: 'Az alap színével egyező részeket is nyomtatod',
         detail: `A nyomott felület ${Math.round((near / inkCount) * 100)}%-a. Ezek fehér alapra kerülnek és foltként látszanak — kapcsold be a kiütést.`,
       });
     }
@@ -297,13 +297,13 @@ export function analyzeTransfer(
           id: 'milky',
           level: 'ok',
           title: 'Nem lesz tejes',
-          detail: `A nyomott felület ${Math.round(milkyShare * 100)}%-a pólóhoz közeli sötét festék — a sötét tónusokat a póló adja.`,
+          detail: `A nyomott felület ${Math.round(milkyShare * 100)}%-a az alaphoz közeli sötét festék — a sötét tónusokat az anyag adja.`,
         }
       : {
           id: 'milky',
           level: 'warn',
           title: `Tejes kockázat: a nyomott felület ${Math.round(milkyShare * 100)}%-a`,
-          detail: 'Pólóhoz közeli sötét festék kerül fehér alapra, ami szürkés, fakó foltként jön ki. Emeld a tömör határt, vagy futtasd az automatikus beállítást.',
+          detail: 'Az alaphoz közeli sötét festék kerül fehér alapra, ami szürkés, fakó foltként jön ki. Emeld a tömör határt, vagy futtasd az automatikus beállítást.',
         },
   );
 
@@ -353,7 +353,7 @@ export function analyzeTransfer(
       checks.push({
         id: 'shirt-size',
         level: 'info',
-        title: `${ctx.shirt.id} pólóra nagy`,
+        title: `${ctx.shirt.id} méretű ruhára nagy`,
         detail: 'S–M méreten a teljes elöl nyomat szokásosan 9–10" széles.',
       });
     }

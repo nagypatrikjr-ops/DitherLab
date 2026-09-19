@@ -1,14 +1,21 @@
 # DitherLab
 
 Kliensoldali dithering stúdió: a dithering nem tömörítési segédfunkció, hanem
-szerkeszthető, réteges, paraméterezhető képi effekt. Minden a böngészőben fut,
-a fájlok nem hagyják el a gépet — nincs backend.
+szerkeszthető, réteges, paraméterezhető képi effekt. Mellette két nyomdai
+stúdió: **DTF transzfer** (rávasalós fólia bármilyen anyagra) és **szitanyomat
+filmek**. Minden a böngészőben fut, a fájlok nem hagyják el a gépet — nincs
+backend.
+
+A nyomdai rész arról szól, **milyen színű alapra** kerül a nyomat, nem arról,
+hogy az az alap éppen póló-e. A ruhás extrák — makett, szokásos elhelyezések,
+préselési táblázat — egy kikapcsolható rész a bal panel alján; a nyomdai fájl
+nélkülük is pontosan ugyanaz.
 
 ```bash
 npm install
 npm run dev      # fejlesztői szerver
 npm run build    # produkciós build (tsc -b && vite build)
-npm test         # 225 teszt: unit + golden
+npm test         # 226 teszt: unit + golden
 npm run bench    # teljesítmény-mérés 4000×3000-en (percekig fut)
 npm run app      # asztali alkalmazásként indítva (Electron)
 npm run app:dist # telepítők Macre és Windowsra → release/
@@ -52,13 +59,13 @@ Every view can be dragged, zoomed (wheel, pinch, +/−, Fit, 1:1, double-click) 
 - **Nyelv:** magyar és angol felület (eszköztár vagy Beállítások), alapból a rendszer nyelvét követi.
 - **Kezdőképernyő:** nagy ejtőterület, mintakép, „mit szeretnél készíteni” kártyák, legutóbbi képek (csak ezen a gépen, IndexedDB-ben; kikapcsolható).
 - **Súgó (?):** első lépések, lépésről lépésre DTF útmutató (mit mondj a nyomdának, otthoni préselés), 21 kifejezéses szótár kereséssel, billentyűparancsok, adatvédelem.
-- **Pólóstúdió:** *Egyszerű* mód (csak a lényeg, a többit az automatikus beállítás intézi) és *Haladó* mód; felső állapotsáv („Nyomtatható” / „1 dolgot érdemes megnézni” / „javítani kell”, *Mutasd* gombbal); **Nyomdai csomag (ZIP)** egyetlen fájlban: nyomdakész PNG + makett + munkalap; megjegyzi a legutóbbi pólószínt, méretet, anyagot és elhelyezést; *Ajánlott beállítások* gomb; Esc = bezárás, ⌘/Ctrl+S = nyomdakész PNG.
+- **Nyomtatási stúdió:** *Egyszerű* mód (csak a lényeg, a többit az automatikus beállítás intézi) és *Haladó* mód; felső állapotsáv („Nyomtatható” / „1 dolgot érdemes megnézni” / „javítani kell”, *Mutasd* gombbal); **Nyomdai csomag (ZIP)** egyetlen fájlban: nyomdakész PNG + munkalap (ruhás módban makett is); megjegyzi a legutóbbi alapszínt, nyomatméretet és felbontást; *Ajánlott beállítások* gomb; Esc = bezárás, ⌘/Ctrl+S = nyomdakész PNG.
 - **Szitastúdió:** az összes film egy ZIP-ben, ékezetmentes fájlnevekkel.
 - **Nézegető minden nézetben** (főablak, DTF stúdió, szitastúdió): húzással mozgatható, görgővel vagy csippentéssel nagyítható a kurzornál, +/− és százalékkijelző, *Igazítás* és *1:1* gomb, dupla kattintás = közeli ↔ egész kép, nyilakkal is mozgatható, nagyításnál áttekintő térkép a sarokban. A görgő szerepe (nagyítás vagy mozgatás) a Beállításokban váltható.
-- **Új nézet a pólóstúdióban: „Alap háttéren”** — a nyomdai fájl egyszínű háttéren, választható színnel (pólószín, fekete, fehér, szürke vagy egyedi); a program megjegyzi a választást. Nagyításkor a *Nyomdai fájl*, az *Alap háttéren*, a *Részlet* és a *Fehér alap* nézet a valódi, teljes felbontású pontokat tölti be a látható területre, nem az előnézetet nagyítja.
+- **Új nézet a stúdióban: „Alap háttéren”** — a nyomdai fájl egyszínű háttéren, választható színnel (az alap színe, fekete, fehér, szürke vagy egyedi); a program megjegyzi a választást. Nagyításkor a *Nyomdai fájl*, az *Alap háttéren*, a *Részlet* és a *Fehér alap* nézet a valódi, teljes felbontású pontokat tölti be a látható területre, nem az előnézetet nagyítja.
 - **Kép bárhová ejthető**, beilleszthető; megnyitáskor az ablakhoz igazodik (F = igazítás, 0 = 100%, dupla katt = közeli ↔ egész); az első render alatt az eredeti látszik.
 - **Értesítések** mentéskor; az asztali appban „Megmutatás a mappában” gombbal.
-- **Billentyűzet és akadálymentesség:** ⌘/Ctrl+O megnyitás, ⌘/Ctrl+S mentés, ⌘/Ctrl+P pólóstúdió, ⌘/Ctrl+Z visszavonás, szóköz = előtte, C = összehasonlítás, ? = súgó, Esc = bezárás; a csúszkák nyilakkal is állíthatók, a szekciók fejléce gomb, látható fókuszkeret.
+- **Billentyűzet és akadálymentesség:** ⌘/Ctrl+O megnyitás, ⌘/Ctrl+S mentés, ⌘/Ctrl+P nyomtatási stúdió, ⌘/Ctrl+Z visszavonás, szóköz = előtte, C = összehasonlítás, ? = súgó, Esc = bezárás; a csúszkák nyilakkal is állíthatók, a szekciók fejléce gomb, látható fókuszkeret.
 - **Asztali app:** natív menü a felület nyelvén, az ablak mérete és helye megmarad, „Megnyitás ezzel” és ráhúzás a Dock-ikonra (Mac), felületméret 85–130%, választható mentési mappa, összeomlás esetén újratöltés-ajánlat.
 
 A kép- és nyomatfeldolgozás (dither, DTF motor, ellenőrzés, hangoló) ebben a körben **nem változott**: a `src/core` és a workerek érintetlenek, a korábbi tesztek változatlanul zöldek. A magyar szövegek a magban maradtak; az angol fordítás a felületen történik (`src/i18n`), és teszt ellenőrzi, hogy minden mag-szövegnek és a valós ellenőrzési, hangolási és szitanyomási üzeneteknek van angol változata.
@@ -181,18 +188,18 @@ Teszt rögzíti, hogy a vektorizált kimenet **visszaraszterizálva bitre egyezi
 a bemeneti maszkkal (1189 pixeles pszeudovéletlen dither mezőn 0 eltérés).
 
 
-## Szitanyomat stúdió (Pólóra →)
+## Szitanyomat stúdió (Transzfer nyomat →)
 
-Külön alprogram a főablak eszköztárából. A kiindulópont: **sötét pólón a
-minta fekete része nem festék, hanem maga a póló** — ezt hívják kihagyásnak
+Külön alprogram a főablak eszköztárából. A kiindulópont: **sötét anyagon a
+minta fekete része nem festék, hanem maga az anyag** — ezt hívják kihagyásnak
 (knockout). A stúdió ebből a feltevésből dolgozik visszafelé.
 
 Mit csinál:
 
 1. **Színbontás.** A képet festékenkénti fedettségre bontja. A modell szerint
-   nyomtatási léptékben egy raszterezett felület úgy néz ki, mint a póló színe,
+   nyomtatási léptékben egy raszterezett felület úgy néz ki, mint az alap színe,
    rajta a festékpontok átlaga:
-   `eredmény = póló + Σ aᵢ · (festékᵢ − póló)`, `aᵢ ≥ 0`, `Σ aᵢ ≤ 1`.
+   `eredmény = alap + Σ aᵢ · (festékᵢ − alap)`, `aᵢ ≥ 0`, `Σ aᵢ ≤ 1`.
    Az `aᵢ` fedettségek visszafejtése egy kis nemnegatív legkisebb négyzetes
    feladat, **lineáris fényerőtérben** megoldva — pontokat átlagolni fényt
    átlagolni. Pixelenként ez túl lassú lenne, ezért egy 32³-as kockára
@@ -211,7 +218,7 @@ Mit csinál:
 |---|---|
 | **Pontnövekedés** | A festék szétterül az anyagban, egy 50%-os pont a filmen ~70%-ként nyomódik. A film ezért kisebb pontot kap: `c = f + 2g·f·(1−f)` inverze. |
 | **Tónushatárok** | A gép nem tart 6% alatti pontot (kiesik) és 90% feletti pontot (befolyik). Ami nyomódik, azt a stúdió a tartható sávba szorítja. |
-| **Valódi kihagyás** | A küszöb alatti fedettség pontosan nulla lesz, nem szórt pöttyök — így a póló tisztán marad, nem szemetel a grain. |
+| **Valódi kihagyás** | A küszöb alatti fedettség pontosan nulla lesz, nem szórt pöttyök — így az anyag tisztán marad, nem szemetel a grain. |
 
 ### Beállítások és mértékek
 
@@ -229,23 +236,23 @@ Teljesítmény: a fedettség-kocka felépítése 56 ms (előtte 1160 volt, warm 
 és trilineáris keresés hozta le), egy előnézet ~100 ms, tehát a csúszkák
 élőben követhetők.
 
-## Pólónyomat stúdió — DTF (fehér aláfestéses, rávasalós transzfer)
+## Nyomtatási stúdió — DTF (fehér aláfestéses, rávasalós transzfer)
 
-A főablak **Pólóra (DTF) →** gombja nyitja. Erre az eljárásra specializált: a
+A főablak **Transzfer nyomat (DTF) →** gombja nyitja. Erre az eljárásra specializált: a
 nyomdára/RIP-re menő, nyomdakész átlátszó PNG-t készíti el bármilyen képből,
 és közben mindent ellenőriz, amit egy DTF nyomda megkérdezne.
 
 A DTF menete röviden: a nyomtató a PET fóliára CMYK-t, majd arra **fehér
 aláfestést** nyomtat, ragasztóport szórnak rá, kikeményítik, és hőpréssel
-átvasalják a pólóra. A RIP a PNG alfa-csatornájából dönti el, hová tegyen fehéret.
+átvasalják az anyagra. A RIP a PNG alfa-csatornájából dönti el, hová tegyen fehéret.
 
 ### Mit csinál a motor, és miért
 
-1. **Fekete kiütés (black knockout).** Sötét pólón a minta fekete része nem
-   festék, hanem maga a póló. A motor minden pixelt a póló színére komponál
+1. **Fekete kiütés (black knockout).** Sötét anyagon a minta fekete része nem
+   festék, hanem maga az anyag. A motor minden pixelt az alap színére komponál
    lineáris fényben, majd „szín→alfa" módon visszabontja: megkeresi azt a
-   legkisebb fedettséget és hozzá tartozó festékszínt, amivel a pólón ugyanaz
-   a szín jön ki. A póló színéhez közeli tónusok (tolerancia alatt) teljesen
+   legkisebb fedettséget és hozzá tartozó festékszínt, amivel az anyagon ugyanaz
+   a szín jön ki. Az alap színéhez közeli tónusok (tolerancia alatt) teljesen
    eltűnnek, a világosak (tömör határ felett) tömören nyomódnak, a kettő
    között pontok adják a tónust. Három kiindulás: *Fotó — tömör*,
    *Kiegyensúlyozott*, *Vintage — légáteresztő*.
@@ -264,7 +271,7 @@ aláfestést** nyomtat, ragasztóport szórnak rá, kikeményítik, és hőprés
 6. **Takarítás.** Törli a nyomtathatatlan pöttyöket, betömi a tűhegynyi
    lyukakat (a szomszédos tinta színével), és eltávolítja azokat a kis
    szigeteket, amelyek alól a RIP choke-ja teljesen elviszi a fehéret —
-   sötét pólón ezek láthatatlanok lennének és leválnának. Hosszú vékony
+   sötét anyagon ezek láthatatlanok lennének és leválnának. Hosszú vékony
    vonalat soha nem töröl: azt jelzi.
 
 ### Ellenőrzés (teljes felbontáson, külön workerben)
@@ -292,13 +299,13 @@ tükrözés. A „Problémák" nézet megmutatja, hol.
 | | érték | forrás |
 |---|---|---|
 | Fájl | átlátszó PNG, 300 DPI, végleges méretben, RGB | [DTFSheet](https://dtfsheet.com/blogs/blog/dtf-transfer-resolution-requirements), [Sumotransfers](https://sumotransfers.com/blogs/articles-1/file-prep-for-dtf-transparent-png-white-underbase-300-dpi) |
-| Fekete kiütés + halftone | a fekete a pólóból jön; átmenetek pontokként | [Transfer Superstars](https://www.transfersuperstars.com/blogs/dtf-transfer-printing/dtf-decoded-the-ultimate-guide-to-black-knockout-halftoning-graphics-for-dtf-transfer) |
+| Fekete kiütés + halftone | a sötét tónus az anyagból jön; átmenetek pontokként | [Transfer Superstars](https://www.transfersuperstars.com/blogs/dtf-transfer-printing/dtf-decoded-the-ultimate-guide-to-black-knockout-halftoning-graphics-for-dtf-transfer) |
 | LPI | 30 a kiindulás, 35–45 kalibrált gépen, 55 fölött betömődik | [Transfer Superstars](https://www.transfersuperstars.com/blogs/dtf-graphic-design/mastering-halftone-prints-direct-to-film-printing-best-practices), [DTF Dallas](https://dtfdallas.com/blogs/news/dtf-halftone-software-photoshop-guide) |
 | Legkisebb vonal/elem | 0,40–0,50 mm | [Sumotransfers](https://sumotransfers.com/blogs/articles-1/minimum-text-and-line-thickness-that-survive-in-dtf) |
 | Fehér choke | 2–4 px (RIP-függő) | [DTF Transfer Studio](https://dtftransferstudio.com/white-outline-dtf-choke-settings-guide/), [DTF PrintCo](https://dtfprintco.com/rip-software-settings-for-dtf-printing-guide/) |
 | Préselés szövetenként | pl. 100% pamut: 149–163 °C, 10–15 s | [DTF Database](https://dtfdatabase.com/tools/dtf-temperature-time-chart/) |
 | Elhelyezés | bal mell 3,5–4,5"; elöl 9–12", 3"-re a varrástól | [ScreenPrinting.com](https://www.screenprinting.com/blogs/news/dtf-transfer-placement-guide) |
-| Póló méretek | Gildan 5000 félmellbőség 18/20/22/24/26/28" | [Gildan 5000 mérettáblázat](https://cdn.inksoft.com/images/publishers/16912/ProductAttachments/1002762/GILDAN_5000.pdf) |
+| Ruhaméretek (ruhás mód) | Gildan 5000 félmellbőség 18/20/22/24/26/28" | [Gildan 5000 mérettáblázat](https://cdn.inksoft.com/images/publishers/16912/ProductAttachments/1002762/GILDAN_5000.pdf) |
 | Tekercsszélesség | 22" szabványos gang sheet | [WePrintUPress](https://weprintupress.com/blogs/dtf-transfer-tips/dtf-gang-sheets-how-to-create-a-dtf-gang-sheet) |
 
 Két saját mérnöki döntés, forrás nélkül, dokumentáltan: a pont alá kell
@@ -327,11 +334,11 @@ kell a képet.
 
 ### Mi a „tejes" nyomat, és hogyan méri
 
-A RIP minden nyomott pixel alá fehér alapot tesz. A pólóhoz közeli sötét
+A RIP minden nyomott pixel alá fehér alapot tesz. A alaphoz közeli sötét
 festék fehér alapon szürkés, krétás foltként jön ki — a sötétpiros poros lesz,
-a fekete szürke. Ezeket a tónusokat a pólónak kell adnia a pontok között.
+a fekete szürke. Ezeket a tónusokat magának az anyagnak kell adnia a pontok között.
 
-A program ezt **méri**: a nyomott felület hány százalékán kerül a pólóhoz
+A program ezt **méri**: a nyomott felület hány százalékán kerül az alaphoz
 közeli (a `MILKY_DISTANCE = 0,35` érzékelt távolságon belüli) festék fehér
 alapra. A cél legfeljebb **5%**. Ugyanez az ellenőrzés fut a kész fájlon is
 („Tejes kockázat"), a Problémák nézet ciánnal mutatja, hol.
@@ -351,21 +358,21 @@ azon belül a legjobb pontszám. A pontszám súlyai ízlés kérdése — ezeke
 rasztersűrűség a legkisebb pontból adódik: a legsűrűbb LPI, amin a pont a
 cella legfeljebb 40%-át foglalja.
 
-### Talált hiba: a pólónál sötétebb szín
+### Talált hiba: az alapnál sötétebb szín
 
-A „szín→alfa" modell a pólónál *sötétebb* színekre (a minta tiszta fekete
-része egy 0,055-ös fekete pólón) óriási fedettség-igényt számolt, mert a
-különbséget a póló kicsi lineáris értékével osztotta. Így a minta mély fekete
+A „szín→alfa" modell az alapnál *sötétebb* színekre (a minta tiszta fekete
+része egy 0,055-ös fekete alapon) óriási fedettség-igényt számolt, mert a
+különbséget az alap kicsi lineáris értékével osztotta. Így a minta mély fekete
 részei fekete festékként, fehér alapra kerültek — pont a tejes hatás. Most
-sötét pólón a festék csak világosíthat (a pólónál sötétebb szín legjobb
-visszaadása maga a csupasz póló), világos pólón csak sötéteríthet, középtónusú
-pólón mindkettő.
+sötét anyagon a festék csak világosíthat (az alapnál sötétebb szín legjobb
+visszaadása maga a csupasz anyag), világos alapon csak sötéteríthet,
+középtónusú alapon mindkettő.
 
 ### Claude ellenőrzés (opcionális)
 
 - **Saját Anthropic API-kulcs kell**; csak ebben a böngészőben tárolódik
   (`localStorage`), és csak az Anthropic API-nak megy.
-- **Csak kifejezett beleegyezéssel küld**: az eredeti kép és a pólós
+- **Csak kifejezett beleegyezéssel küld**: az eredeti kép és az alapon látszó
   próbanyomat egy-egy 768 px-es másolatát, plusz a mért számokat (JSON). A
   teljes felbontású kép nem hagyja el a gépet.
 - Modell: `claude-opus-5`, adaptív gondolkodással, a hivatalos

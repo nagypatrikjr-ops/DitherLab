@@ -289,6 +289,11 @@ export function TransferStudio({
   const i18n = useI18n();
   const { t, core, num, err } = i18n;
   const simple = usePrefs((p) => p.dtfSimple);
+  // The garment extras (mockup, placement, pressing) are a preview of where the
+  // transfer ends up, not part of making it, so they are off unless asked for.
+  const garmentMode = usePrefs((p) => p.dtfGarment);
+  const garmentRef = useRef(garmentMode);
+  garmentRef.current = garmentMode;
   const wheelMode = usePrefs((p) => p.wheelMode);
   const setPref = usePrefs((p) => p.setPref);
 
@@ -310,7 +315,7 @@ export function TransferStudio({
     memory.fabricId !== undefined && PRESS_SETTINGS.some((x) => x.id === memory.fabricId) ? memory.fabricId : 'cotton',
   );
   const [useRender, setUseRender] = useState(false);
-  const [view, setView] = useState<View>('shirt');
+  const [view, setView] = useState<View>(() => (usePrefs.getState().dtfGarment ? 'shirt' : 'background'));
   const [preview, setPreview] = useState<TransferPreview | null>(null);
   const [analysis, setAnalysis] = useState<TransferAnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -367,6 +372,10 @@ export function TransferStudio({
   const activeImage = useRender && renderImage !== null ? renderImage : sourceImage;
   const dtfSourceId = useRender ? `${sourceId}#dtf` : sourceId;
   const aspect = activeImage.width / activeImage.height;
+  useEffect(() => {
+    if (!garmentMode) setView((v) => (v === 'shirt' ? 'background' : v));
+  }, [garmentMode]);
+
   const shirt = SHIRT_SIZES.find((x) => x.id === shirtId) ?? SHIRT_SIZES[2];
   const placement = PLACEMENTS.find((x) => x.id === placementId) ?? PLACEMENTS[0];
   const press = PRESS_SETTINGS.find((x) => x.id === fabricId) ?? PRESS_SETTINGS[0];
@@ -443,7 +452,7 @@ export function TransferStudio({
       analysisInFlight.current = true;
       setAnalyzing(true);
       heavy
-        .transferAnalyze(dtfSourceId, s, { shirtId, placementId }, frame)
+        .transferAnalyze(dtfSourceId, s, garmentRef.current ? { shirtId, placementId } : {}, frame)
         .then((a) => setAnalysis(a))
         .catch((e: unknown) => setError(i18nRef.current.err(e)))
         .finally(() => {
@@ -456,7 +465,7 @@ export function TransferStudio({
     };
     if (analysisInFlight.current) analysisPending.current = go;
     else go();
-  }, [heavy, dtfSourceId, s, shirtId, placementId, frame]);
+  }, [heavy, dtfSourceId, s, shirtId, placementId, garmentMode, frame]);
 
   useEffect(() => {
     const timer = window.setTimeout(runAnalysis, 700);
@@ -913,12 +922,16 @@ export function TransferStudio({
       }),
       s.mirror ? t('ticket.mirrorYes') : t('ticket.mirrorNo'),
       '',
-      t('ticket.shirt', {
+      t('ticket.base', {
         name: core(garmentOf(s.garment)?.name ?? 'Egyedi'),
         hex: rgbToHex(s.garment.r, s.garment.g, s.garment.b),
-        size: shirt.id,
       }),
-      t('ticket.placement', { name: core(placement.name), note: core(placement.note) }),
+      ...(garmentMode
+        ? [
+            t('ticket.shirtSize', { size: shirt.id }),
+            t('ticket.placement', { name: core(placement.name), note: core(placement.note) }),
+          ]
+        : []),
       '',
       s.knockout.enabled
         ? t('ticket.knockoutOn', {
@@ -933,14 +946,18 @@ export function TransferStudio({
       t('ticket.minDot', { mm: num(eff, 2) }),
       t('ticket.choke', { mm: num(s.chokeMm, 2), px: num(mmToPx(s.chokeMm, 300), 1) }),
       '',
-      t('ticket.press', { fabric: core(press.fabric) }),
-      t('ticket.temp', { c1: press.tempC[0], c2: press.tempC[1], f1: press.tempF[0], f2: press.tempF[1] }),
-      t('ticket.time', { s1: press.seconds[0], s2: press.seconds[1] }),
-      t('ticket.pressure', { v: core(press.pressure) }),
-      t('ticket.peel', { v: core(press.peel) }),
-      t('ticket.finish', { v: core(press.finish) }),
-      t('ticket.datasheet'),
-      '',
+      ...(garmentMode
+        ? [
+        t('ticket.press', { fabric: core(press.fabric) }),
+        t('ticket.temp', { c1: press.tempC[0], c2: press.tempC[1], f1: press.tempF[0], f2: press.tempF[1] }),
+        t('ticket.time', { s1: press.seconds[0], s2: press.seconds[1] }),
+        t('ticket.pressure', { v: core(press.pressure) }),
+        t('ticket.peel', { v: core(press.peel) }),
+        t('ticket.finish', { v: core(press.finish) }),
+        t('ticket.datasheet'),
+        '',
+          ]
+        : []),
       t('ticket.checks'),
       ...(analysis?.checks ?? []).map((c) => `  [${mark(c.level)}] ${core(c.title)} — ${core(c.detail)}`),
       '',
@@ -961,7 +978,7 @@ export function TransferStudio({
       const f = await heavy.transferExport(dtfSourceId, s, 'png');
       const pngName = printFileName('png');
       const entries: ZipEntry[] = [{ name: pngName, data: f.bytes }];
-      const mock = await mockupBlob();
+      const mock = garmentMode ? await mockupBlob() : null;
       if (mock) entries.push({ name: `${fileName}_${t('dtf.fileMockup')}.png`, data: new Uint8Array(await mock.arrayBuffer()) });
       entries.push({ name: `${fileName}_${t('dtf.fileTicket')}.txt`, data: ticketText(pngName) });
       const zip = createZip(entries);
@@ -1080,6 +1097,7 @@ export function TransferStudio({
                 dpi: Math.round(activeImage.width / (Math.min(MAX_PRINT_MM, s.widthMm) / IN)),
               })}
             </div>
+            <div className="hint">{t('dtf.whereEffects')}</div>
           </Section>
 
           <Section title={t('dtf.shirt')}>
@@ -1111,30 +1129,9 @@ export function TransferStudio({
               </div>
               <div className="hint">{t('dtf.shirtColorHint')}</div>
             </div>
-            <div className="field">
-              <div className="label"><span>{t('dtf.size')}</span></div>
-              <select value={shirtId} onChange={(e) => setShirtId(e.target.value)} aria-label={t('dtf.size')}>
-                {SHIRT_SIZES.map((x) => (
-                  <option key={x.id} value={x.id}>{t('dtf.sizeOption', { id: x.id, cm: num(x.halfChestMm / 10, 1) })}</option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <div className="label"><span>{t('dtf.fabric')}</span></div>
-              <select value={fabricId} onChange={(e) => setFabricId(e.target.value)} aria-label={t('dtf.fabric')}>
-                {PRESS_SETTINGS.map((x) => <option key={x.id} value={x.id}>{core(x.fabric)}</option>)}
-              </select>
-            </div>
           </Section>
 
           <Section title={t('dtf.placement')}>
-            <div className="field">
-              <div className="label"><span>{t('dtf.where')}</span></div>
-              <select value={placementId} onChange={(e) => choosePlacement(e.target.value)} aria-label={t('dtf.where')}>
-                {PLACEMENTS.map((x) => <option key={x.id} value={x.id}>{core(x.name)}</option>)}
-              </select>
-              <div className="hint">{core(placement.note)}</div>
-            </div>
             <NumberSlider
               label={t('dtf.width')}
               value={s.widthMm}
@@ -1162,6 +1159,15 @@ export function TransferStudio({
               </select>
               <div className="hint">{t('dtf.px', { w: full.width, h: full.height })}</div>
             </div>
+          </Section>
+
+          <Section title={t('dtf.improve')}>
+            <NumberSlider label={t('dtf.contrast')} value={s.adjust.contrast} min={-0.5} max={0.8} step={0.01} defaultValue={0}
+              onChange={(v) => patchAdjust({ contrast: v })} onCommit={() => undefined} />
+            <NumberSlider label={t('dtf.saturation')} value={s.adjust.saturation} min={-1} max={1} step={0.01} defaultValue={0}
+              onChange={(v) => patchAdjust({ saturation: v })} onCommit={() => undefined} />
+            <NumberSlider label={t('dtf.sharpen')} value={s.adjust.sharpen} min={0} max={2} step={0.01} defaultValue={0}
+              onChange={(v) => patchAdjust({ sharpen: v })} onCommit={() => undefined} />
           </Section>
 
           <Section title={t('spot.section')} defaultOpen={false}>
@@ -1279,6 +1285,7 @@ export function TransferStudio({
             ) : null}
           </Section>
 
+
           {!simple ? (
             <>
               <Section title={t('dtf.knockout')}>
@@ -1342,15 +1349,6 @@ export function TransferStudio({
                 ) : null}
               </Section>
 
-              <Section title={t('dtf.improve')} defaultOpen={false}>
-                <NumberSlider label={t('dtf.contrast')} value={s.adjust.contrast} min={-0.5} max={0.8} step={0.01} defaultValue={0}
-                  onChange={(v) => patchAdjust({ contrast: v })} onCommit={() => undefined} />
-                <NumberSlider label={t('dtf.saturation')} value={s.adjust.saturation} min={-1} max={1} step={0.01} defaultValue={0}
-                  onChange={(v) => patchAdjust({ saturation: v })} onCommit={() => undefined} />
-                <NumberSlider label={t('dtf.sharpen')} value={s.adjust.sharpen} min={0} max={2} step={0.01} defaultValue={0}
-                  onChange={(v) => patchAdjust({ sharpen: v })} onCommit={() => undefined} />
-              </Section>
-
               <Section title={t('dtf.edgeFade')} defaultOpen={false}>
                 <div className="field">
                   <div className="label"><span>{t('dtf.shape')}</span></div>
@@ -1371,11 +1369,52 @@ export function TransferStudio({
                 <div className="hint">{t('dtf.fadeHint')}</div>
               </Section>
 
-              <div className="panel-foot">
-                <button className="btn wide" onClick={resetToRecommended}>{t('dtf.resetDefaults')}</button>
-              </div>
             </>
           ) : null}
+
+          {/* Everything that is about the garment rather than about the file.
+              Switched off, the studio is a transfer maker for any material. */}
+          <Section title={t('dtf.garment')} defaultOpen={garmentMode}>
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                checked={garmentMode}
+                onChange={(e) => setPref('dtfGarment', e.target.checked)}
+              />
+              <span>{t('dtf.garmentOn')}</span>
+            </label>
+            <div className="hint">{t('dtf.garmentHint')}</div>
+            {garmentMode ? (
+              <>
+                <div className="field">
+                  <div className="label"><span>{t('dtf.where')}</span></div>
+                  <select value={placementId} onChange={(e) => setPlacementId(e.target.value)} aria-label={t('dtf.where')}>
+                    {PLACEMENTS.map((x) => <option key={x.id} value={x.id}>{core(x.name)}</option>)}
+                  </select>
+                  <div className="hint">{core(placement.note)}</div>
+                  <button className="btn wide" onClick={() => choosePlacement(placementId)}>{t('dtf.sizeUse')}</button>
+                </div>
+                <div className="field">
+                  <div className="label"><span>{t('dtf.size')}</span></div>
+                  <select value={shirtId} onChange={(e) => setShirtId(e.target.value)} aria-label={t('dtf.size')}>
+                    {SHIRT_SIZES.map((x) => (
+                      <option key={x.id} value={x.id}>{t('dtf.sizeOption', { id: x.id, cm: num(x.halfChestMm / 10, 1) })}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <div className="label"><span>{t('dtf.fabric')}</span></div>
+                  <select value={fabricId} onChange={(e) => setFabricId(e.target.value)} aria-label={t('dtf.fabric')}>
+                    {PRESS_SETTINGS.map((x) => <option key={x.id} value={x.id}>{core(x.fabric)}</option>)}
+                  </select>
+                </div>
+              </>
+            ) : null}
+          </Section>
+          <div className="panel-foot">
+            <button className="btn wide" onClick={resetToRecommended}>{t('dtf.resetDefaults')}</button>
+          </div>
+
         </div>
 
         <div className="studio-canvas">
@@ -1391,7 +1430,7 @@ export function TransferStudio({
           </div>
           <div className="view-tabs">
             <div className="view-scroll" role="tablist">
-            {VIEWS.map(([id, key]) => (
+            {VIEWS.filter(([id]) => id !== 'shirt' || garmentMode).map(([id, key]) => (
               <button
                 key={id}
                 role="tab"
@@ -1713,6 +1752,7 @@ export function TransferStudio({
             </Section>
           </div>
 
+          {garmentMode ? (
           <Section title={t('dtf.press')}>
             <div className="press-card">
               <div className="press-fabric">{core(press.fabric)}</div>
@@ -1725,6 +1765,7 @@ export function TransferStudio({
             </div>
             <div className="hint">{t('dtf.pressHint')}</div>
           </Section>
+          ) : null}
 
           <Section title={t('dtf.save')}>
             <button className="btn primary wide" disabled={busy || heavy === null} onClick={() => void exportFile('png')}>
@@ -1735,16 +1776,18 @@ export function TransferStudio({
               style={{ marginTop: 6 }}
               disabled={busy || heavy === null || preview === null}
               onClick={() => void exportPackage()}
-              title={t('dtf.packageHint')}
+              title={t(garmentMode ? 'dtf.packageHintGarment' : 'dtf.packageHint')}
             >
               {t('dtf.savePackage')}
             </button>
             <div className="row" style={{ marginTop: 6 }}>
               <button className="btn" disabled={busy || heavy === null} onClick={() => void exportFile('tiff')}>{t('dtf.saveTiff')}</button>
-              <button className="btn" disabled={preview === null} onClick={() => void exportMockup()}>{t('dtf.saveMockup')}</button>
+              {garmentMode ? (
+                <button className="btn" disabled={preview === null} onClick={() => void exportMockup()}>{t('dtf.saveMockup')}</button>
+              ) : null}
               <button className="btn" onClick={exportTicket}>{t('dtf.saveTicket')}</button>
             </div>
-            <div className="hint">{t('dtf.packageHint')}</div>
+            <div className="hint">{t(garmentMode ? 'dtf.packageHintGarment' : 'dtf.packageHint')}</div>
             <div className="hint">
               {t('dtf.exportHint', { cm: num(s.widthMm / 10, 1), films: films || t('dtf.noFilm') })}
             </div>

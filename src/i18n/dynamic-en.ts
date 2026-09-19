@@ -66,10 +66,10 @@ const RULES: readonly Rule[] = [
   [rx(`${NUM} elem alól eltűnik a fehér`), (m) => `${n(m[1])} elements lose their white underneath`],
   [
     rx(
-      `Összesen ${NUM} mm²\\. A choke teljesen elviszi alóluk az aláfestést, sötét pólón nem látszanak\\. Kisebb choke-ot kérj a RIP-ben, vagy növeld a legkisebb pontot\\.`,
+      `Összesen ${NUM} mm²\\. A choke teljesen elviszi alóluk az aláfestést, sötét anyagon nem látszanak\\. Kisebb choke-ot kérj a RIP-ben, vagy növeld a legkisebb pontot\\.`,
     ),
     (m) =>
-      `${n(m[1])} mm² in total. The choke removes all the underbase beneath them, so they vanish on a dark shirt. Ask for a smaller choke in the RIP, or raise the smallest dot.`,
+      `${n(m[1])} mm² in total. The choke removes all the underbase beneath them, so they vanish on a dark material. Ask for a smaller choke in the RIP, or raise the smallest dot.`,
   ],
   [rx(`Nincs ${NUM} mm-nél vékonyabb tömör vonal`), (m) => `No solid line thinner than ${n(m[1])} mm`],
   [rx(`${NUM} helyen túl vékony tömör elem`), (m) => `${n(m[1])} solid details are too thin`],
@@ -83,8 +83,8 @@ const RULES: readonly Rule[] = [
     (m) => `${n(m[1])}% of the printed area. These get white underneath and show up as patches — turn on the knockout.`,
   ],
   [
-    rx(`A nyomott felület ${NUM}%-a pólóhoz közeli sötét festék — a sötét tónusokat a póló adja\\.`),
-    (m) => `${n(m[1])}% of the printed area is dark ink close to the shirt color — the shirt supplies the dark tones.`,
+    rx(`A nyomott felület ${NUM}%-a az alaphoz közeli sötét festék — a sötét tónusokat az anyag adja\\.`),
+    (m) => `${n(m[1])}% of the printed area is dark ink close to the background colour — the material supplies the dark tones.`,
   ],
   [rx(`Tejes kockázat: a nyomott felület ${NUM}%-a`), (m) => `Milky risk: ${n(m[1])}% of the printed area`],
   [
@@ -102,30 +102,30 @@ const RULES: readonly Rule[] = [
   // ---- size, placement, film --------------------------------------------------
   [rx(`${NUM}" széles — szokatlan a\\(z\\) „(.+)" helyre`), (m) => `${n(m[1])}" wide — unusual for “${name(m[2])}”`],
   [rx(`Méret: ${NUM}" \\((\\d+) mm\\)`), (m) => `Size: ${n(m[1])}" (${m[2]} mm)`],
-  [rx(`(S|M|L|XL|2XL|3XL) pólóra nagy`), (m) => `Large for a size ${m[1]} shirt`],
+  [rx(`(S|M|L|XL|2XL|3XL) méretű ruhára nagy`), (m) => `Large for a size ${m[1]} garment`],
   [rx(`Ráfér: (.+)`), (m) => `Fits: ${names(m[1])}`],
   [rx(`(\\d+) × (\\d+) mm\\.`), (m) => `${m[1]} × ${m[2]} mm.`],
   // ---- auto-tune notes -----------------------------------------------------------
   [
-    rx(`Tejes kockázat: ${PCT} → ${PCT} a nyomott felületből\\. A pólóhoz közeli sötét tónusokat most a póló adja a pontok között, nem sötét festék fehér alapon\\.`),
+    rx(`Tejes kockázat: ${PCT} → ${PCT} a nyomott felületből\\. Az alaphoz közeli sötét tónusokat most maga az anyag adja a pontok között, nem sötét festék fehér alapon\\.`),
     (m) =>
-      `Milky risk: ${n(m[1])} → ${n(m[2])} of the printed area. Dark tones close to the shirt color now come from the shirt between the dots, not from dark ink on white.`,
+      `Milky risk: ${n(m[1])} → ${n(m[2])} of the printed area. Dark tones close to the background now come from the material between the dots, not from dark ink on white.`,
   ],
   [
-    rx(`Tejes kockázat: ${PCT} — a sötét részeket már eddig is a póló adta\\.`),
-    (m) => `Milky risk: ${n(m[1])} — the shirt was already supplying the dark areas.`,
+    rx(`Tejes kockázat: ${PCT} — a sötét részeket már eddig is az anyag adta\\.`),
+    (m) => `Milky risk: ${n(m[1])} — the material was already supplying the dark areas.`,
   ],
   [
-    rx(`A ${PCT}-os cél ezen a képen nem érhető el teljesen: sok a pólóhoz közeli, de tömörnek szánt sötét rész\\.`),
-    (m) => `The ${n(m[1])} target cannot be fully met on this image: it has many dark areas close to the shirt color that are meant to be solid.`,
+    rx(`A ${PCT}-os cél ezen a képen nem érhető el teljesen: sok az alaphoz közeli, de tömörnek szánt sötét rész\\.`),
+    (m) => `The ${n(m[1])} target cannot be fully met on this image: it has many dark areas close to the background colour that are meant to be solid.`,
   ],
   [
     rx(`Tömör határ ${PCT} → ${PCT}: ennél sötétebb tónusok pontokból állnak\\.`),
     (m) => `Solid point ${n(m[1])} → ${n(m[2])}: tones darker than this are made of dots.`,
   ],
   [
-    rx(`Tolerancia ${PCT} → ${PCT} — a halvány szemcse nem szórja tele pöttyökkel a pólót\\.`),
-    (m) => `Tolerance ${n(m[1])} → ${n(m[2])} — faint grain will not scatter specks all over the shirt.`,
+    rx(`Tolerancia ${PCT} → ${PCT} — a halvány szemcse nem szórja tele pöttyökkel az anyagot\\.`),
+    (m) => `Tolerance ${n(m[1])} → ${n(m[2])} — faint grain will not scatter specks all over the material.`,
   ],
   [rx(`Tolerancia ${PCT} → ${PCT} — több halvány részlet marad meg\\.`), (m) => `Tolerance ${n(m[1])} → ${n(m[2])} — more faint detail is kept.`],
   [rx(`Pontsúly ${NUM} → ${NUM}\\.`), (m) => `Dot weight ${n(m[1])} → ${n(m[2])}.`],

@@ -419,14 +419,14 @@ export const CORE_EN: Readonly<Record<string, string>> = {
   'A raszter túl sűrű a legkisebb ponthoz': 'Screen too fine for the smallest dot',
   'Minden pont alatt marad fehér': 'Every dot keeps white underneath',
   'A szöveg és a körvonalak elég vastagok a tartós nyomathoz.': 'Text and outlines are thick enough to last.',
-  'A póló színével egyező részeket is nyomtatod': 'You are also printing areas that match the shirt color',
+  'Az alap színével egyező részeket is nyomtatod': 'You are also printing areas that match the background colour',
   'Nem lesz tejes': 'Will not look milky',
-  'Pólóhoz közeli sötét festék kerül fehér alapra, ami szürkés, fakó foltként jön ki. Emeld a tömör határt, vagy futtasd az automatikus beállítást.':
-    'Dark ink close to the shirt color lands on white underbase and comes out as a greyish, washed-out patch. Raise the solid point, or run the automatic settings.',
+  'Az alaphoz közeli sötét festék kerül fehér alapra, ami szürkés, fakó foltként jön ki. Emeld a tömör határt, vagy futtasd az automatikus beállítást.':
+    'Dark ink close to the background colour lands on white underbase and comes out as a greyish, washed-out patch. Raise the solid point, or run the automatic settings.',
   'A fehér alap kilátszhat a széleken': 'White underbase may peek out at the edges',
   'Kis choke — apró mintához jó': 'Small choke — fine for small designs',
   'A fehér nem villan ki a széleken': 'No white peeking out at the edges',
-  'S–M méreten a teljes elöl nyomat szokásosan 9–10" széles.': 'On S–M shirts a full-front print is usually 9–10" wide.',
+  'S–M méreten a teljes elöl nyomat szokásosan 9–10" széles.': 'On S–M garments a full-front print is usually 9–10" wide.',
   'Egyik szabványos filmszélességre sem fér rá': 'Does not fit any standard film width',
   'A fájl tükrözve lesz mentve': 'The file will be saved mirrored',
   'Csak akkor, ha a saját RIP-ed nem tükröz. DTF szolgáltatónak ne küldj tükrözött fájlt — ők tükröznek.':

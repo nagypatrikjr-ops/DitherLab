@@ -932,15 +932,21 @@ kbd {
 .view-tabs {
   display: flex;
   align-items: center;
-  gap: var(--s4);
+  flex-wrap: wrap;
+  gap: var(--s2) var(--s4);
   padding: var(--s2) var(--s3);
   border-bottom: 1px solid var(--c-4);
   background: var(--c-1);
 }
+/* The view selector keeps the row to itself; the background picker takes the
+   next line when they do not fit, rather than squeezing the tabs out of view. */
+.view-tabs .view-scroll { flex: 1 1 320px; }
+.view-tabs .bg-picker { flex: 0 0 auto; margin-left: auto; }
 .view-scroll {
   display: flex;
   align-items: center;
   min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
   /* Fades at the edges so a cut-off tab reads as "more this way". */
